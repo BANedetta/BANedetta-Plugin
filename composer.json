@@ -1,5 +1,20 @@
 {
+    "name": "tynaev/banedetta",
+    "description": "...",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Tynaev\\Banedetta\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Taskov1ch",
+            "email": "tynaev.acc@gmail.com"
+        }
+    ],
     "require": {
-        "sof3/libasynql": "^4.2"
+        "sof3/libasynql": "*"
     }
 }
