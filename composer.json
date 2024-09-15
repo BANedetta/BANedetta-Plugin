@@ -1,0 +1,5 @@
+{
+    "require": {
+        "sof3/libasynql": "^4.2"
+    }
+}
