@@ -3,9 +3,9 @@ build-by-default: true
 branches:
 - main
 projects:
-  Banedetta:
-    path: ""
-    libs:
-      - src: poggit/libasynql/libasynql
-        version: ^4.1.6
+	Banedetta:
+		path: ""
+		libs:
+			- src: poggit/libasynql/libasynql
+				version: ^4.1.6
 ...
