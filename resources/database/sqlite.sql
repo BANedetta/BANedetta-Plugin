@@ -3,8 +3,8 @@
 -- #{ table
 	-- #{ init
 		CREATE TABLE IF NOT EXISTS bans (
-			id INTEGER, -- ID постов с ВК
 			banned TEXT,
+			postId INTEGER,
 			nickname TEXT,
 			by TEXT,
 			reason TEXT,
@@ -32,18 +32,30 @@
 		WHERE banned = :banned;
 	-- #}
 
-	-- #{ setId
+	-- #{ getData
 		-- # :banned string
-		-- # :id int
-		UPDATE bans
-		SET id = :id
-		WHERE banned = :banned;
+		SELECT * FROM bans
+		WHERE banned = :banned
 	-- #}
 
-	-- #{ getByNickname
+	-- #{ getDataByNickname
 		-- # :nickname string
 		SELECT * FROM bans
-		WHERE nickname = :nickname LIMIT 1;
+		WHERE nickname = :nickname
+	-- #}
+
+	-- #{ getDataByPostId
+		-- # :postId int
+		SELECT * FROM bans
+		WHERE postId = :postId
+	-- #}
+
+	-- #{ setPostId
+		-- # :banned string
+		-- # :postId int
+		UPDATE bans
+		SET postId = :postId
+		WHERE banned = :banned;
 	-- #}
 
 	-- #{ remove

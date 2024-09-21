@@ -3,12 +3,12 @@
 -- #{ table
 	-- #{ init
 		CREATE TABLE IF NOT EXISTS bans (
-			id INTEGER, -- ID постов с ВК
 			banned TEXT,
+			postId INT DEFAULT -1,
 			nickname TEXT,
-			by TEXT,
+			`by` TEXT,
 			reason TEXT,
-			confirmed BOOLEAN NOT NULL
+			confirmed BOOLEAN DEFAULT FALSE
 		);
 	-- #}
 -- #}
@@ -20,7 +20,7 @@
 		-- # :by string
 		-- # :reason string
 		-- # :confirmed bool
-		INSERT INTO bans(banned, by, nickname, reason, confirmed)
+		INSERT INTO bans(banned, `by`, nickname, reason, confirmed)
 		VALUES (:banned, :by, :nickname, :reason, :confirmed);
 	-- #}
 
@@ -32,21 +32,35 @@
 		WHERE banned = :banned;
 	-- #}
 
-	-- #{ setId
+	-- #{ getData
 		-- # :banned string
-		-- # :id int
-		UPDATE bans
-		SET id = :id
+		SELECT * FROM bans
 		WHERE banned = :banned;
 	-- #}
 
-	-- #{ get
+	-- #{ getDataByNickname
+		-- # :nickname string
+		SELECT * FROM bans
+		WHERE nickname = :nickname;
+	-- #}
+
+	-- #{ getDataByPostId
+		-- # :postId int
+		SELECT * FROM bans
+		WHERE postId = :postId;
+	-- #}
+
+	-- #{ setPostId
 		-- # :banned string
-		SELECT * FROM bans WHERE banned = :banned LIMIT 1;
+		-- # :postId int
+		UPDATE bans
+		SET postId = :postId
+		WHERE banned = :banned;
 	-- #}
 
 	-- #{ remove
 		-- # :banned string
-		DELETE FROM bans WHERE banned = :banned;
+		DELETE FROM bans
+		WHERE banned = :banned;
 	-- #}
 -- #}

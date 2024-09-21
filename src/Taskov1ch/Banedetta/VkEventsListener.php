@@ -16,15 +16,30 @@ class VkEventsListener implements VkListener
 		$data = $event->getUpdates();
 		$config = $this->main->getConfig()->get("vk");
 
-		if(
-			(!in_array($data["from_id"], $config["admins"])) or
-			(!in_array($data["text"], ["+", "-"]))
-		)
-		{
-			return;
-		}
+		if(!in_array($data["from_id"], $config["admins"])) return;
 
-		$this->main->getBansManager()->confirmByNickname("taskovich");
+		(match($data["text"])
+		{
+			"+" => function() use($data)
+			{
+				$bans = $this->main->getBansManager();
+				$bans->getDataByPostId($data["post_id"])->onCompletion(
+					function(?array $row) use($bans)
+					{
+						if((!$row) or $row["confirmed"] == true) return;
+
+						$bans->confirm($row["banned"]);
+					}, fn() => null
+				);
+			},
+
+			"-" => function()
+			{
+				var_dump("UNBAN");
+			},
+
+			default => fn() => var_dump("хуйню выписал")
+		})();
 	}
 
 }

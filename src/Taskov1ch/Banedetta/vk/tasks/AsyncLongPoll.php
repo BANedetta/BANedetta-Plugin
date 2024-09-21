@@ -36,10 +36,7 @@ class AsyncLongPoll extends AsyncTask
 
 	public function onRun(): void
 	{
-		if (!$this->server or !$this->key or !$this->ts)
-		{
-			$this->init();
-		}
+		if (!$this->server or !$this->key or !$this->ts) $this->init();
 
 		while (true)
 		{
@@ -52,10 +49,7 @@ class AsyncLongPoll extends AsyncTask
 			$request = Internet::getURL($this->server . "?" . http_build_query($params), 30)->getBody();
 			$response = json_decode($request, true);
 
-			if ($response["failed"] ?? -1 == 2)
-			{
-				$this->init();
-			}
+			if ($response["failed"] ?? -1 == 2) $this->init();
 
 			$updates = $response["updates"];
 
@@ -79,10 +73,7 @@ class AsyncLongPoll extends AsyncTask
 			{
 				$event = VkEvents::getInitedEvent($data);
 
-				if ($event)
-				{
-					$event->call();
-				}
+				if ($event) $event->call();
 			}
 		}
 

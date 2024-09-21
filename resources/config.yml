@@ -3,7 +3,7 @@ ban_method: nick
 
 vk:
   # Да простят меня боги программирования за то что храню такую инфу в конфиге
-  # (токен обязательно должен быть от Standalone приложения)
+  # Ключ доступа пользователя, полученным в Standalone-приложении через Implicit Flow
   token: "vk1.a.dci74ySBJv87dyCETKTnfCL2vrdcWrfjsG7TAdezhs6hJu_ZQMjv8KipWi69djL7R6MWUG5Ma_6WcYkbPpzdjodZf0D1VIgvFQng5RQtBP8sKgblspAxb-YJ3kc3oVEF4ngMdw9G7XOdoALBrRHVai0euQPdKMiYOgM0K3-Nlg3_gPsGquG2r2OE6m1_Pn7TkecdLEAV-S1n2czH7z1ukQ"
 
   # ID сообщества (без минуса)
@@ -15,23 +15,23 @@ vk:
 
   posts:
     waiting:
-      image: "photo-224130500_457239021"
+      attachment: "photo-224130500_457239036"
       message: |-
-        Игрок {banned} был заблокирован игроком {by}
+        Игрок {nickname} был заблокирован игроком {by}
         Причина: {reason}.
         Ожидается доказательства в течение 6 часов, в ином случае ваш аккаунт будет заблокирован.
 
     confirmed:
-      image: "photo-224130500_457239019"
+      attachment: "photo-224130500_457239042"
       message: |-
-        Игрок {banned} был заблокирован игроком {by}
+        Игрок {nickname} был заблокирован игроком {by}
         Причина: {reason}.
         Подверждено!
 
     denied:
-      image: "photo-224130500_457239020"
+      attachment: "photo-224130500_457239037"
       message: |-
-        Игрок {banned} был заблокирован игроком {by}
+        Игрок {nickname} был заблокирован игроком {by}
         Причина: {reason}.
         Не подверждено! Игрок был разблокирован.
 
@@ -48,12 +48,12 @@ databases:
 
   # Изменяйте эти настройки только в случае выбора "mysql".
   mysql:
-    host: 127.0.0.1
+    host: "127.0.0.1:3306"
 
     # Избегайте использования пользователя "root" по соображениям безопасности.
     username: root
-    password: "test"
-    schema: your_schema
+    password: qwerty
+    schema: banedetta
 
   # Максимальное количество одновременных SQL-запросов
   # Рекомендуется: 1 для sqlite, 2 для MySQL. Вы можете дополнительно увеличить это значение, если ваше соединение MySQL очень медленное.

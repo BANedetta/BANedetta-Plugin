@@ -9,5 +9,5 @@ final class WallReplyNewEvent extends VkEvent
 	{
 		$this->name = "WallReplyNewEvent";
 	}
-	
+
 }
