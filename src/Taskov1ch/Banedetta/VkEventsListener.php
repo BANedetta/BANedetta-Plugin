@@ -26,16 +26,24 @@ class VkEventsListener implements VkListener
 				$bans->getDataByPostId($data["post_id"])->onCompletion(
 					function(?array $row) use($bans)
 					{
-						if((!$row) or $row["confirmed"] == true) return;
+						if((!$row) or $row["confirmed"] !== null) return;
 
 						$bans->confirm($row["banned"]);
 					}, fn() => null
 				);
 			},
 
-			"-" => function()
+			"-" => function() use($data)
 			{
-				var_dump("UNBAN");
+				$bans = $this->main->getBansManager();
+				$bans->getDataByPostId($data["post_id"])->onCompletion(
+					function(?array $row) use($bans)
+					{
+						if((!$row) or $row["confirmed"] !== null) return;
+
+						$bans->deny($row["banned"]);
+					}, fn() => null
+				);
 			},
 
 			default => fn() => var_dump("хуйню выписал")

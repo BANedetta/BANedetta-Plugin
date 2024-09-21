@@ -39,12 +39,11 @@ class BansManager
 					"banned" => $banned,
 					"nickname" => $nickname,
 					"by" => $by,
-					"reason" => $reason,
-					"confirmed" => false
+					"reason" => $reason
 				], fn() => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallPost(
 					$this->main->getReadyParamsForVk("waiting", $nickname, $reason, $by), $banned)
 				));
-			}, fn() => var_dump("error")
+			}, fn() => null
 		);
 
 	}
@@ -75,6 +74,22 @@ class BansManager
 				$this->db->executeChange("bans.confirm", ["banned" => $banned, "confirmed" => true],
 				fn() => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
 					$this->main->getReadyParamsForVk("confirmed", postId: $row["postId"])
+				))
+			);
+			}, fn() => null
+		);
+	}
+
+	public function deny(string $banned): void
+	{
+		$this->getData($banned)->onCompletion(
+			function(?array $row) use($banned)
+			{
+				if(!$row) return;
+
+				$this->db->executeChange("bans.confirm", ["banned" => $banned, "confirmed" => false],
+				fn() => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
+					$this->main->getReadyParamsForVk("denied", postId: $row["postId"])
 				))
 			);
 			}, fn() => null

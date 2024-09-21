@@ -25,7 +25,8 @@ class Main extends PluginBase
 		$this->saveDefaultConfig();
 		$vk = $this->getConfig()->get("vk");
 		$this->getScheduler()->scheduleRepeatingTask(new LongPoll($vk["token"], $vk["group_id"]), 1);
-		// $this->bansManager->ban("ifjfj", "Tester", "Hz", "LOX");
+		$this->bansManager->ban("ifjfj", "Tester", "Hz", "LOX");
+		$this->bansManager->ban("testtwo", "BIN", "Hz", "LOX");
 		// var_dump("ok");
 		// $this->bansManager->unban("tester");
 	}

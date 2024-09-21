@@ -18,7 +18,6 @@ class AsyncWallPost extends AsyncTask
 	public function onRun(): void
 	{
 		$request = Internet::getURL("https://api.vk.com/method/wall.post?" . $this->params)->getBody();
-		var_dump(json_decode($request, true));
 		$this->setResult(json_decode($request, true)["response"]);
 	}
 

@@ -8,7 +8,7 @@
 			nickname TEXT,
 			by TEXT,
 			reason TEXT,
-			confirmed INTEGER NOT NULL CHECK (confirmed IN (0, 1))
+			confirmed INTEGER CHECK (confirmed IN (0, 1)) DEFAULT NULL
 		);
 	-- #}
 -- #}
@@ -19,9 +19,8 @@
 		-- # :nickname string
 		-- # :by string
 		-- # :reason string
-		-- # :confirmed bool
-		INSERT INTO bans(banned, by, nickname, reason, confirmed)
-		VALUES (:banned, :by, :nickname, :reason, :confirmed);
+		INSERT INTO bans(banned, by, nickname, reason)
+		VALUES (:banned, :by, :nickname, :reason);
 	-- #}
 
 	-- #{ confirm

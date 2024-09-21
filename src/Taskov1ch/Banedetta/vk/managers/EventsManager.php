@@ -50,7 +50,6 @@ class EventsManager
 
 	public function removeClosures(string $plugin): void
 	{
-		var_dump($plugin);
 		if (isset($this->closures[$plugin]))
 		{
 			unset($this->closures[$plugin]);

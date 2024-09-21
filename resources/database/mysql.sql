@@ -8,7 +8,7 @@
 			nickname TEXT,
 			`by` TEXT,
 			reason TEXT,
-			confirmed BOOLEAN DEFAULT FALSE
+			confirmed BOOLEAN DEFAULT NULL
 		);
 	-- #}
 -- #}
@@ -19,9 +19,8 @@
 		-- # :nickname string
 		-- # :by string
 		-- # :reason string
-		-- # :confirmed bool
-		INSERT INTO bans(banned, `by`, nickname, reason, confirmed)
-		VALUES (:banned, :by, :nickname, :reason, :confirmed);
+		INSERT INTO bans(banned, `by`, nickname, reason)
+		VALUES (:banned, :by, :nickname, :reason);
 	-- #}
 
 	-- #{ confirm
