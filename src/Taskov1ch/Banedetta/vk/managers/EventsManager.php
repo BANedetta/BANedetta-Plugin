@@ -8,7 +8,6 @@ use pocketmine\plugin\Plugin;
 
 class EventsManager
 {
-
 	private static ?self $instance = null;
 	private array $closures = [];
 
@@ -16,8 +15,7 @@ class EventsManager
 	{
 		$plugin_name = $plugin->getName();
 
-		if (!$plugin->isEnabled())
-		{
+		if (!$plugin->isEnabled()) {
 			return;
 		}
 
@@ -50,8 +48,7 @@ class EventsManager
 
 	public function removeClosures(string $plugin): void
 	{
-		if (isset($this->closures[$plugin]))
-		{
+		if (isset($this->closures[$plugin])) {
 			unset($this->closures[$plugin]);
 		}
 	}

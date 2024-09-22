@@ -22,7 +22,8 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\result;
 
-class SqlColumnInfo{
+class SqlColumnInfo
+{
 	public const TYPE_STRING = "string";
 	public const TYPE_INT = "int";
 	public const TYPE_FLOAT = "float";
@@ -34,16 +35,19 @@ class SqlColumnInfo{
 	private $name;
 	private $type;
 
-	public function __construct(string $name, string $type){
+	public function __construct(string $name, string $type)
+	{
 		$this->name = $name;
 		$this->type = $type;
 	}
 
-	public function getName() : string{
+	public function getName(): string
+	{
 		return $this->name;
 	}
 
-	public function getType() : string{
+	public function getType(): string
+	{
 		return $this->type;
 	}
 }

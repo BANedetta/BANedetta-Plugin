@@ -10,7 +10,6 @@ use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncLongPoll extends AsyncTask
 {
-
 	private ?string $server = null;
 	private ?string $key = null;
 	private ?int $ts = null;
@@ -18,8 +17,8 @@ class AsyncLongPoll extends AsyncTask
 	public function __construct(
 		private readonly string $token,
 		private readonly int $group_id
-	)
-	{}
+	) {
+	}
 
 	public function init(): void
 	{
@@ -37,10 +36,11 @@ class AsyncLongPoll extends AsyncTask
 
 	public function onRun(): void
 	{
-		if (!$this->server or !$this->key or !$this->ts) $this->init();
+		if (!$this->server or !$this->key or !$this->ts) {
+			$this->init();
+		}
 
-		while (true)
-		{
+		while (true) {
 			$params = [
 				"act" => "a_check",
 				"key" => $this->key,
@@ -50,12 +50,13 @@ class AsyncLongPoll extends AsyncTask
 			$request = Internet::getURL($this->server . "?" . http_build_query($params), 30)->getBody();
 			$response = json_decode($request, true);
 
-			if ($response["failed"] ?? -1 == 2) $this->init();
+			if ($response["failed"] ?? -1 == 2) {
+				$this->init();
+			}
 
 			$updates = $response["updates"];
 
-			if (!empty($updates))
-			{
+			if (!empty($updates)) {
 				$this->ts = $response["ts"];
 				break;
 			}
@@ -68,13 +69,13 @@ class AsyncLongPoll extends AsyncTask
 	{
 		$updates = $this->getResult();
 
-		if ($updates)
-		{
-			foreach ($updates as $data)
-			{
+		if ($updates) {
+			foreach ($updates as $data) {
 				$event = VkEvents::getInitedEvent($data);
 
-				if ($event) $event->call();
+				if ($event) {
+					$event->call();
+				}
 			}
 		}
 

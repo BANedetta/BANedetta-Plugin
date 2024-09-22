@@ -27,39 +27,42 @@ use Throwable;
 /**
  * @template ParentT
  */
-class AwaitChild extends PromiseState{
+class AwaitChild extends PromiseState
+{
 	/** @var Await<ParentT> */
 	protected $await;
-
 
 	/**
 	 * @phpstan-param Await<ParentT> $await
 	 */
-	public function __construct(Await $await){
+	public function __construct(Await $await)
+	{
 		$this->await = $await;
 	}
 
 	/**
 	 * @param mixed $value
 	 */
-	public function resolve($value = null) : void{
-		if($this->state !== self::STATE_PENDING){
+	public function resolve($value = null): void
+	{
+		if ($this->state !== self::STATE_PENDING) {
 			return; // nothing should happen if resolved/rejected multiple times
 		}
 
 		parent::resolve($value);
-		if(!$this->cancelled && $this->await->isSleeping()){
+		if (!$this->cancelled && $this->await->isSleeping()) {
 			$this->await->recheckPromiseQueue($this);
 		}
 	}
 
-	public function reject(Throwable $value) : void{
-		if($this->state !== self::STATE_PENDING){
+	public function reject(Throwable $value): void
+	{
+		if ($this->state !== self::STATE_PENDING) {
 			return; // nothing should happen if resolved/rejected multiple times
 		}
 
 		parent::reject($value);
-		if(!$this->cancelled && $this->await->isSleeping()){
+		if (!$this->cancelled && $this->await->isSleeping()) {
 			$this->await->recheckPromiseQueue($this);
 		}
 	}

@@ -24,7 +24,8 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\result;
 
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlResult;
 
-class SqlSelectResult extends SqlResult{
+class SqlSelectResult extends SqlResult
+{
 	private $columnInfo;
 	private $rows;
 
@@ -34,7 +35,8 @@ class SqlSelectResult extends SqlResult{
 	 * @param SqlColumnInfo[] $columnInfo
 	 * @param array[]         $rows
 	 */
-	public function __construct(array $columnInfo, array $rows){
+	public function __construct(array $columnInfo, array $rows)
+	{
 		$this->columnInfo = $columnInfo;
 		$this->rows = $rows;
 	}
@@ -44,7 +46,8 @@ class SqlSelectResult extends SqlResult{
 	 *
 	 * @return SqlColumnInfo[]
 	 */
-	public function getColumnInfo() : array{
+	public function getColumnInfo(): array
+	{
 		return $this->columnInfo;
 	}
 
@@ -64,7 +67,8 @@ class SqlSelectResult extends SqlResult{
 	 *
 	 * @return array[]
 	 */
-	public function getRows() : array{
+	public function getRows(): array
+	{
 		return $this->rows;
 	}
 }

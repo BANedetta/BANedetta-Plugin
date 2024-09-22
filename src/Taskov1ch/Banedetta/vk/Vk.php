@@ -11,7 +11,6 @@ use Taskov1ch\Banedetta\vk\tasks\LongPoll;
 
 class Vk
 {
-
 	public const ENDPOINT = "https://api.vk.com/method/";
 	private array $data;
 
@@ -25,30 +24,34 @@ class Vk
 		try {
 			$postId = null;
 
-			foreach (["wall.post", "wall.edit", "wall.delete"] as $method)
-			{
-				$params = $this->getReadyParamsForVk(postId: $postId);
+			foreach (["wall.post", "wall.edit", "wall.delete"] as $method) {
+				$params = $this->getReadyParams(postId: $postId);
 				$response = Internet::getURL(self::ENDPOINT . "$method?$params");
 
-				if ($response === null) return false;
+				if ($response === null) {
+					return false;
+				}
 
 				$responseData = json_decode($response->getBody(), true);
 
-				if (!isset($responseData["response"])) return false;
+				if (!isset($responseData["response"])) {
+					return false;
+				}
 
 				$postId = $responseData["response"]["post_id"] ?? $postId;
 			}
 			return true;
-		} catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			return false;
 		}
 	}
 
 	public function initLongPoll(): void
 	{
-		$this->main->getScheduler()->scheduleRepeatingTask(new LongPoll($this->data["token"],
-			$this->data["group_id"]), 1);
+		$this->main->getScheduler()->scheduleRepeatingTask(new LongPoll(
+			$this->data["token"],
+			$this->data["group_id"]
+		), 1);
 		EventsManager::getInstance()->registerEvents(new VkEventsListener($this->main), $this->main);
 	}
 
@@ -57,11 +60,13 @@ class Vk
 		return $this->data["admins"];
 	}
 
-	public function getReadyParamsForVk(
-		string $type = "waiting", string $nickname = "",
-		string $reason = "", string $by = "", ?int $postId = null
-	): string
-	{
+	public function getReadyParams(
+		string $type = "waiting",
+		string $nickname = "",
+		string $reason = "",
+		string $by = "",
+		?int $postId = null
+	): string {
 		$params = [
 			"access_token" => $this->data["token"],
 			"v" => 5.199,
@@ -74,7 +79,9 @@ class Vk
 				$this->data["posts"][$type]["message"]
 			)
 		];
-		if($postId) $params["post_id"] = $postId;
+		if ($postId) {
+			$params["post_id"] = $postId;
+		}
 
 		return http_build_query($params);
 	}

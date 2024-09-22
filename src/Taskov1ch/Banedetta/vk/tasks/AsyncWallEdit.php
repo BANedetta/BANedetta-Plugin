@@ -8,9 +8,9 @@ use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncWallEdit extends AsyncTask
 {
-
 	public function __construct(private readonly string $params)
-	{}
+	{
+	}
 
 	public function onRun(): void
 	{

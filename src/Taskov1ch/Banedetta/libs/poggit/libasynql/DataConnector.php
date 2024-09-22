@@ -32,34 +32,35 @@ use Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator\Await;
 /**
  * Represents a database connection or a group of database connections
  */
-interface DataConnector{
+interface DataConnector
+{
 	/**
 	 * If true, logger is set to the plugin logger. If false, queries are not logged.
 	 *
 	 * @param bool $loggingQueries
 	 */
-	public function setLoggingQueries(bool $loggingQueries) : void;
+	public function setLoggingQueries(bool $loggingQueries): void;
 
 	/**
 	 * Returns whether the logger is not null, i.e. queries are being logged.
 	 *
 	 * @return bool
 	 */
-	public function isLoggingQueries() : bool;
+	public function isLoggingQueries(): bool;
 
 	/**
 	 * Sets the logger used to log queries, or null to not log queries
 	 *
 	 * @param Logger|null $logger
 	 */
-	public function setLogger(?Logger $logger) : void;
+	public function setLogger(?Logger $logger): void;
 
 	/**
 	 * Returns the logger used to log queries, or null if not logging queries
 	 *
 	 * @return Logger|null
 	 */
-	public function getLogger() : ?Logger;
+	public function getLogger(): ?Logger;
 
 	/**
 	 * Loads pre-formatted queries from a readable stream resource.
@@ -72,7 +73,7 @@ interface DataConnector{
 	 * @throws GenericStatementFileParseException if the file contains a syntax error or compile error
 	 * @throws InvalidArgumentException if the file introduces statements that duplicate the names of those previously loaded
 	 */
-	public function loadQueryFile($fh, string $fileName = null) : void;
+	public function loadQueryFile($fh, string $fileName = null): void;
 
 	/**
 	 * Loads a pre-formatted query.
@@ -81,7 +82,7 @@ interface DataConnector{
 	 *
 	 * @throws InvalidArgumentException if the statement duplicates the name of one previously loaded
 	 */
-	public function loadQuery(GenericStatement $stmt) : void;
+	public function loadQuery(GenericStatement $stmt): void;
 
 	/**
 	 * Executes a generic query that either succeeds or fails.
@@ -91,7 +92,7 @@ interface DataConnector{
 	 * @param callable|null $onSuccess an optional callback when the query has succeeded: <code>function() : void{}</code>
 	 * @param callable|null $onError   an optional callback when the query has failed: <code>function({@link SqlError} $error) : void{}</code>
 	 */
-	public function executeGeneric(string $queryName, array $args = [], ?callable $onSuccess = null, ?callable $onError = null) : void;
+	public function executeGeneric(string $queryName, array $args = [], ?callable $onSuccess = null, ?callable $onError = null): void;
 
 	/**
 	 * Executes a generic query that either succeeds or fails.
@@ -102,7 +103,7 @@ interface DataConnector{
 	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, null>
 	 */
-	public function asyncGeneric(string $queryName, array $args = []) : Generator;
+	public function asyncGeneric(string $queryName, array $args = []): Generator;
 
 	/**
 	 * Executes a query that changes data.
@@ -115,7 +116,7 @@ interface DataConnector{
 	 * @param callable|null $onSuccess an optional callback when the query has succeeded: <code>function(int $affectedRows) : void{}</code>
 	 * @param callable|null $onError   an optional callback when the query has failed: <code>function({@link SqlError} $error) : void{}</code>
 	 */
-	public function executeChange(string $queryName, array $args = [], ?callable $onSuccess = null, ?callable $onError = null) : void;
+	public function executeChange(string $queryName, array $args = [], ?callable $onSuccess = null, ?callable $onError = null): void;
 
 	/**
 	 * Executes a query that changes data.
@@ -128,7 +129,7 @@ interface DataConnector{
 	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, int>
 	 */
-	public function asyncChange(string $queryName, array $args = []) : Generator;
+	public function asyncChange(string $queryName, array $args = []): Generator;
 
 	/**
 	 * Executes an insert query that results in an insert ID.
@@ -141,7 +142,7 @@ interface DataConnector{
 	 * @param callable|null $onInserted an optional callback when the query has succeeded: <code>function(int $insertId, int $affectedRows) : void{}</code>
 	 * @param callable|null $onError    an optional callback when the query has failed: <code>function({@link SqlError} $error) : void{}</code>
 	 */
-	public function executeInsert(string $queryName, array $args = [], ?callable $onInserted = null, ?callable $onError = null) : void;
+	public function executeInsert(string $queryName, array $args = [], ?callable $onInserted = null, ?callable $onError = null): void;
 
 	/**
 	 * Executes an insert query that results in an insert ID.
@@ -162,7 +163,7 @@ interface DataConnector{
 	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, array{int, int}>
 	 */
-	public function asyncInsert(string $queryName, array $args = []) : Generator;
+	public function asyncInsert(string $queryName, array $args = []): Generator;
 
 	/**
 	 * Executes a select query that returns an SQL result set. This does not strictly need to be SELECT queries -- reflection queries like MySQL's <code>SHOW TABLES</code> query are also allowed.
@@ -175,7 +176,7 @@ interface DataConnector{
 	 * @param callable|null $onSelect  an optional callback when the query has succeeded: <code>function(array[] $rows, SqlColumnInfo[] $columns) : void{}</code>
 	 * @param callable|null $onError   an optional callback when the query has failed: <code>function({@link SqlError} $error) : void{}</code>
 	 */
-	public function executeSelect(string $queryName, array $args = [], ?callable $onSelect = null, ?callable $onError = null) : void;
+	public function executeSelect(string $queryName, array $args = [], ?callable $onSelect = null, ?callable $onError = null): void;
 
 	/**
 	 * Executes a query with probably multiple delimited queries, and returns an array of {@link SqlResult}s mapping to each query.
@@ -185,14 +186,14 @@ interface DataConnector{
 	 * @param callable|null $onSelect  an optional callback when the query has succeeded: <code>function(SqlResult[] $results) : void{}</code>
 	 * @param callable|null $onError   an optional callback when the query has failed: <code>function({@link SqlError} $error) : void{}</code>
 	 */
-	public function executeMulti(string $queryName, array $args, int $mode, ?callable $handler = null, ?callable $onError = null) : void;
+	public function executeMulti(string $queryName, array $args, int $mode, ?callable $handler = null, ?callable $onError = null): void;
 
 	/**
 	 * @param string[] $queries
 	 * @param mixed[][] $args
 	 * @param int[] $modes
 	 */
-	public function executeImplRaw(array $queries, array $args, array $modes, callable $handler, ?callable $onError) : void;
+	public function executeImplRaw(array $queries, array $args, array $modes, callable $handler, ?callable $onError): void;
 
 	/**
 	 * Executes a select query that returns an SQL result set. This does not strictly need to be SELECT queries -- reflection queries like MySQL's <code>SHOW TABLES</code> query are also allowed.
@@ -207,7 +208,7 @@ interface DataConnector{
 	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, array[] $rows>
 	 */
-	public function asyncSelect(string $queryName, array $args = []) : Generator;
+	public function asyncSelect(string $queryName, array $args = []): Generator;
 
 	/**
 	 * A variant of {@link #asyncSelect} with different return value.
@@ -226,17 +227,17 @@ interface DataConnector{
 	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, array{array[], SqlColumnInfo[]}>
 	 */
-	public function asyncSelectWithInfo(string $queryName, array $args = []) : Generator;
+	public function asyncSelectWithInfo(string $queryName, array $args = []): Generator;
 
 	/**
 	 * This function waits all pending queries to complete then returns. This is as if the queries were executed in blocking mode (not async).
 	 *
 	 * This method should only under very rare events like server start/stop. This should not be run trivially (e.g. every time player joins), because otherwise this is not async.
 	 */
-	public function waitAll() : void;
+	public function waitAll(): void;
 
 	/**
 	 * Closes the connection and/or all child connections. Remember to call this method when the plugin is disabled or the data provider is switched.
 	 */
-	public function close() : void;
+	public function close(): void;
 }

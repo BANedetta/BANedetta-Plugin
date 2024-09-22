@@ -9,7 +9,6 @@ use Taskov1ch\Banedetta\vk\Vk;
 
 class Main extends PluginBase
 {
-
 	private static Main $instance;
 	private BansManager $bansManager;
 	private Vk $vk;
@@ -21,7 +20,9 @@ class Main extends PluginBase
 
 	public function onEnable(): void
 	{
-		if(!$this->initVk()) return;
+		if (!$this->initVk()) {
+			return;
+		}
 		$this->bansManager = new BansManager($this);
 		$this->getServer()->getPluginManager()->registerEvents(new EventsListener($this), $this);
 		$this->saveDefaultConfig();
@@ -33,8 +34,7 @@ class Main extends PluginBase
 	{
 		$this->vk = new Vk($this);
 		$this->getLogger()->warning("Проверка токена...");
-		if(!$this->vk->check())
-		{
+		if (!$this->vk->check()) {
 			$this->getLogger()->error("Не удалось проверить токен. Плагин будет не доступен");
 			return false;
 		}

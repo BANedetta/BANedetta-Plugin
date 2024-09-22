@@ -25,7 +25,8 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\mysqli;
 use JsonSerializable;
 use mysqli;
 
-class MysqlSslCredentials implements JsonSerializable{
+class MysqlSslCredentials implements JsonSerializable
+{
 	/** @var string|null $key */
 	private $key;
 	/** @var string $certificate */
@@ -37,13 +38,13 @@ class MysqlSslCredentials implements JsonSerializable{
 	/** @var string|null $cipherAlgorithms */
 	private $cipherAlgorithms;
 
-
 	/**
 	 * Creates a new {@link MysqlSslCredentials} instance from an array (e.g. from Config), with empty default values.
 	 * @param array $array
 	 * @return MysqlSslCredentials
 	 */
-	public static function fromArray(array $array) : MysqlSslCredentials{
+	public static function fromArray(array $array): MysqlSslCredentials
+	{
 		return new MysqlSslCredentials(
 			$array["key"] ?? null,
 			$array["certificate"] ?? null,
@@ -62,7 +63,8 @@ class MysqlSslCredentials implements JsonSerializable{
 	 * @param string|null $caPath - The path name to a directory that contains trusted SSL CA certificates in PEM format
 	 * @param string|null $cipherAlgorithms - A list of allowable ciphers used for SSL encryption
 	 */
-	public function __construct(?string $key = null, ?string $certificate = null, ?string $caCertificate = null, ?string $caPath = null, ?string $cipherAlgorithms = null){
+	public function __construct(?string $key = null, ?string $certificate = null, ?string $caCertificate = null, ?string $caPath = null, ?string $cipherAlgorithms = null)
+	{
 		$this->key = $key;
 		$this->certificate = $certificate;
 		$this->caCertificate = $caCertificate;
@@ -75,7 +77,8 @@ class MysqlSslCredentials implements JsonSerializable{
 	 *
 	 * @param mysqli $mysqli
 	 */
-	public function applyToInstance(mysqli $mysqli) : void{
+	public function applyToInstance(mysqli $mysqli): void
+	{
 		$mysqli->ssl_set(
 			$this->key,
 			$this->certificate,
@@ -85,7 +88,8 @@ class MysqlSslCredentials implements JsonSerializable{
 		);
 	}
 
-	public function jsonSerialize() : array{
+	public function jsonSerialize(): array
+	{
 		return [
 			"key" => $this->key,
 			"certificate" => $this->certificate,

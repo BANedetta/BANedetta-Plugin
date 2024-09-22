@@ -7,7 +7,6 @@ use pocketmine\Server;
 
 abstract class VkEvent
 {
-
 	protected string $name;
 	protected array $data;
 
@@ -15,14 +14,14 @@ abstract class VkEvent
 
 	public function call(): void
 	{
-		foreach (EventsManager::getInstance()->getClosures() as $plugin_name => $closure_data)
-		{
+		foreach (EventsManager::getInstance()->getClosures() as $plugin_name => $closure_data) {
 			$plugin = Server::getInstance()->getPluginManager()->getPlugin($plugin_name);
 
-			if (!$plugin or !$plugin->isEnabled()) EventsManager::getInstance()->removeClosures($plugin_name);
+			if (!$plugin or !$plugin->isEnabled()) {
+				EventsManager::getInstance()->removeClosures($plugin_name);
+			}
 
-			if (isset($closure_data[get_called_class()]))
-			{
+			if (isset($closure_data[get_called_class()])) {
 				$closure_data[get_called_class()]($this);
 				break;
 			}

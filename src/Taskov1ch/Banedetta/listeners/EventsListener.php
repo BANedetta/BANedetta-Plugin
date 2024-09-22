@@ -10,23 +10,22 @@ use Taskov1ch\Banedetta\Main;
 
 class EventsListener implements Listener
 {
-
 	public function __construct(private readonly Main $main)
-	{}
+	{
+	}
 
-	public function onJoin(PlayerJoinEvent $event) : void
+	public function onJoin(PlayerJoinEvent $event): void
 	{
 		$player = $event->getPlayer();
 		$bans = $this->main->getBansManager();
 		$bans->getDataByPlayer($player)->onCompletion(
-			function(?array $row) use($event, $player): void
-			{
-				if($row)
-				{
+			function (?array $row) use ($event, $player): void {
+				if ($row) {
 					$event->setJoinMessage("");
 					$player->kick($row["message"]);
 				}
-			}, fn(): null => null
+			},
+			fn (): null => null
 		);
 	}
 

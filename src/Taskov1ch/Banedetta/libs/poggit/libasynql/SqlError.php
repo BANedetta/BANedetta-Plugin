@@ -27,6 +27,7 @@ use Exception;
 use ReflectionClass;
 use ReflectionFunction;
 use RuntimeException;
+
 use function get_class;
 use function get_resource_type;
 use function is_object;
@@ -37,7 +38,8 @@ use function sprintf;
 /**
  * Represents a generic error when executing a SQL statement.
  */
-class SqlError extends RuntimeException{
+class SqlError extends RuntimeException
+{
 	/**
 	 * Returned by {@link SqlError::getStage() getStage()}, indicating that an error occurred while connecting to the database
 	 */
@@ -60,7 +62,8 @@ class SqlError extends RuntimeException{
 	private $query;
 	private $args;
 
-	public function __construct(string $stage, string $errorMessage, string $query = null, array $args = null){
+	public function __construct(string $stage, string $errorMessage, string $query = null, array $args = null)
+	{
 		$this->stage = $stage;
 		$this->errorMessage = $errorMessage;
 		$this->query = $query;
@@ -75,7 +78,8 @@ class SqlError extends RuntimeException{
 	 *
 	 * @return string
 	 */
-	public function getStage() : string{
+	public function getStage(): string
+	{
 		return $this->stage;
 	}
 
@@ -84,7 +88,8 @@ class SqlError extends RuntimeException{
 	 *
 	 * @return string
 	 */
-	public function getErrorMessage() : string{
+	public function getErrorMessage(): string
+	{
 		return $this->errorMessage;
 	}
 
@@ -93,7 +98,8 @@ class SqlError extends RuntimeException{
 	 *
 	 * @return string|null
 	 */
-	public function getQuery() : ?string{
+	public function getQuery(): ?string
+	{
 		return $this->query;
 	}
 
@@ -102,7 +108,8 @@ class SqlError extends RuntimeException{
 	 *
 	 * @return mixed[]|null
 	 */
-	public function getArgs() : ?array{
+	public function getArgs(): ?array
+	{
 		return $this->args;
 	}
 
@@ -111,31 +118,32 @@ class SqlError extends RuntimeException{
 	 *
 	 * @see https://gist.github.com/Thinkscape/805ba8b91cdce6bcaf7c Exception flattening solution by Artur Bodera
 	 */
-	protected function flattenTrace() : void{
+	protected function flattenTrace(): void
+	{
 		$traceProperty = (new ReflectionClass(Exception::class))->getProperty('trace');
 		$traceProperty->setAccessible(true);
-		$flatten = static function(&$value){
-			if($value instanceof Closure){
+		$flatten = static function (&$value) {
+			if ($value instanceof Closure) {
 				$closureReflection = new ReflectionFunction($value);
 				$value = sprintf(
 					'(Closure at %s:%s)',
 					$closureReflection->getFileName(),
 					$closureReflection->getStartLine()
 				);
-			}elseif(is_object($value)){
+			} elseif (is_object($value)) {
 				$value = sprintf('object(%s)', get_class($value));
-			}elseif(is_resource($value)){
+			} elseif (is_resource($value)) {
 				$value = sprintf('resource(%s)', get_resource_type($value));
 			}
 		};
-		do{
+		do {
 			$trace = $traceProperty->getValue($this);
-			foreach($trace as &$call){
+			foreach ($trace as &$call) {
 				array_walk_recursive($call['args'], $flatten);
 			}
 			unset($call);
 			$traceProperty->setValue($this, $trace);
-		}while($exception = $this->getPrevious());
+		} while ($exception = $this->getPrevious());
 		$traceProperty->setAccessible(false);
 	}
 }

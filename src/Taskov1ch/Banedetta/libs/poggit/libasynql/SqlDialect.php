@@ -22,7 +22,8 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
-interface SqlDialect{
+interface SqlDialect
+{
 	public const SQLITE = "sqlite";
 	public const MYSQL = "mysql";
 }

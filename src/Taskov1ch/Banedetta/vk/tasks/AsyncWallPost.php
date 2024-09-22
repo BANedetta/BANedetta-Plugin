@@ -9,12 +9,11 @@ use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncWallPost extends AsyncTask
 {
-
 	public function __construct(
 		private readonly string $params,
 		private readonly string $banned
-	)
-	{}
+	) {
+	}
 
 	public function onRun(): void
 	{

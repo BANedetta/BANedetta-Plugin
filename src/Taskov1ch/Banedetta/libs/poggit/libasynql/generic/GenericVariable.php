@@ -25,6 +25,7 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\generic;
 use InvalidArgumentException;
 use InvalidStateException;
 use JsonSerializable;
+
 use function assert;
 use function in_array;
 use function is_string;
@@ -38,7 +39,8 @@ use function substr;
 /**
  * Represents a variable that can be passed into {@link GenericStatement::format()}
  */
-class GenericVariable implements JsonSerializable{
+class GenericVariable implements JsonSerializable
+{
 	public const TYPE_STRING = "string";
 	public const TYPE_INT = "int";
 	public const TYPE_FLOAT = "float";
@@ -56,32 +58,33 @@ class GenericVariable implements JsonSerializable{
 	/** @var string|int|float|bool|null */
 	protected $default = null;
 
-	public function __construct(string $name, string $type, ?string $default){
-		if(strpos($name, ":") !== false){
+	public function __construct(string $name, string $type, ?string $default)
+	{
+		if (strpos($name, ":") !== false) {
 			throw new InvalidArgumentException("Colon is disallowed in a variable name");
 		}
 		$this->name = $name;
-		if(stripos($type, "list:") === 0){
+		if (stripos($type, "list:") === 0) {
 			$this->list = true;
 			/** @noinspection CallableParameterUseCaseInTypeContextInspection */
 			$type = substr($type, strlen("list:"));
-		}elseif(stripos($type, "list?") === 0){
+		} elseif (stripos($type, "list?") === 0) {
 			$this->list = true;
 			$this->canEmpty = true;
 			/** @noinspection CallableParameterUseCaseInTypeContextInspection */
 			$type = substr($type, strlen("list?"));
-		}elseif($type[0] === "?"){
+		} elseif ($type[0] === "?") {
 			$this->nullable = true;
 			$type = substr($type, 1);
 		}
 		$this->type = $type;
-		if($default !== null){
-			if($this->list){
+		if ($default !== null) {
+			if ($this->list) {
 				throw new InvalidArgumentException("Lists cannot have default value");
 			}
-			switch($type){
+			switch ($type) {
 				case self::TYPE_STRING:
-					if($default[0] === "\"" && $default[strlen($default) - 1] === "\""){
+					if ($default[0] === "\"" && $default[strlen($default) - 1] === "\"") {
 						$default = json_decode($default);
 						assert(is_string($default));
 					}
@@ -101,10 +104,10 @@ class GenericVariable implements JsonSerializable{
 					break;
 
 				case self::TYPE_TIMESTAMP:
-					if(!in_array(strtoupper($default), [
+					if (!in_array(strtoupper($default), [
 						self::TIME_NOW,
 						self::TIME_0,
-					], true)){
+					], true)) {
 						throw new InvalidArgumentException("Invalid timestamp default");
 					}
 					$this->default = $default;
@@ -116,8 +119,9 @@ class GenericVariable implements JsonSerializable{
 		}
 	}
 
-	public function unlist() : GenericVariable{
-		if(!$this->list){
+	public function unlist(): GenericVariable
+	{
+		if (!$this->list) {
 			throw new InvalidStateException("Cannot unlist a non-list variable");
 		}
 		$clone = clone $this;
@@ -125,11 +129,13 @@ class GenericVariable implements JsonSerializable{
 		return $clone;
 	}
 
-	public function getName() : string{
+	public function getName(): string
+	{
 		return $this->name;
 	}
 
-	public function isList() : bool{
+	public function isList(): bool
+	{
 		return $this->list;
 	}
 
@@ -142,58 +148,65 @@ class GenericVariable implements JsonSerializable{
 	 *
 	 * @return bool
 	 */
-	public function canBeEmpty() : bool{
-		if(!$this->list){
+	public function canBeEmpty(): bool
+	{
+		if (!$this->list) {
 			throw new InvalidStateException("canBeEmpty() is only available for list variables");
 		}
 
 		return $this->canEmpty;
 	}
 
-	public function isNullable() : bool{
+	public function isNullable(): bool
+	{
 		return $this->nullable;
 	}
 
-	public function getType() : string{
+	public function getType(): string
+	{
 		return $this->type;
 	}
 
 	/**
 	 * @return mixed
 	 */
-	public function getDefault(){
+	public function getDefault()
+	{
 		return $this->default;
 	}
 
-	public function isOptional() : bool{
+	public function isOptional(): bool
+	{
 		return $this->default !== null;
 	}
 
-	public function equals(GenericVariable $that, &$diff = null) : bool{
-		if($this->name !== $that->name){
+	public function equals(GenericVariable $that, &$diff = null): bool
+	{
+		if ($this->name !== $that->name) {
 			$diff = "name";
 			return false;
 		}
-		if($this->list !== $that->list){
+		if ($this->list !== $that->list) {
 			$diff = "isList";
 			return false;
 		}
-		if($this->canEmpty !== $that->canEmpty){
+		if ($this->canEmpty !== $that->canEmpty) {
 			$diff = "canBeEmpty";
 			return false;
 		}
-		if($this->type !== $that->type){
+		if ($this->type !== $that->type) {
 			$diff = "type";
 			return false;
 		}
-		if($this->default !== $that->default){
+		if ($this->default !== $that->default) {
 			$diff = "defaultValue";
 			return false;
 		}
 		return true;
 	}
 
-	public function jsonSerialize(): array{
+	public function jsonSerialize(): array
+	{
 		return [
 			"name" => $this->name,
 			"isList" => $this->list,

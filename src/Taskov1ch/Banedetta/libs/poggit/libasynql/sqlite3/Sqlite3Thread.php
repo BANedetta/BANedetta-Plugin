@@ -40,9 +40,11 @@ use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
 use SQLite3;
+
 use function array_values;
 use function assert;
 use function is_array;
+
 use const INF;
 use const NAN;
 use const SQLITE3_ASSOC;
@@ -52,50 +54,55 @@ use const SQLITE3_INTEGER;
 use const SQLITE3_NULL;
 use const SQLITE3_TEXT;
 
-class Sqlite3Thread extends SqlSlaveThread{
+class Sqlite3Thread extends SqlSlaveThread
+{
 	/** @var string */
 	private $path;
 
-	public static function createFactory(string $path) : Closure{
-		return function(SleeperHandlerEntry $entry, QuerySendQueue $send, QueryRecvQueue $recv) use ($path){
+	public static function createFactory(string $path): Closure
+	{
+		return function (SleeperHandlerEntry $entry, QuerySendQueue $send, QueryRecvQueue $recv) use ($path) {
 			return new Sqlite3Thread($path, $entry, $send, $recv);
 		};
 	}
 
-	public function __construct(string $path, SleeperHandlerEntry $entry, QuerySendQueue $send = null, QueryRecvQueue $recv = null){
+	public function __construct(string $path, SleeperHandlerEntry $entry, QuerySendQueue $send = null, QueryRecvQueue $recv = null)
+	{
 		$this->path = $path;
 		parent::__construct($entry, $send, $recv);
 	}
 
-	protected function createConn(&$sqlite) : ?string{
-		try{
+	protected function createConn(&$sqlite): ?string
+	{
+		try {
 			$sqlite = new SQLite3($this->path);
 			$sqlite->busyTimeout(60000); // default value in SQLite2
 			return null;
-		}catch(Exception $e){
+		} catch (Exception $e) {
 			return $e->getMessage();
 		}
 	}
 
-	protected function executeQuery($sqlite, int $mode, string $query, array $params) : SqlResult{
+	protected function executeQuery($sqlite, int $mode, string $query, array $params): SqlResult
+	{
 		assert($sqlite instanceof SQLite3);
-		try{
-			$stmt = ErrorToExceptionHandler::trapAndRemoveFalse(fn() => $sqlite->prepare($query));
-		}catch(ErrorException){
+		try {
+			$stmt = ErrorToExceptionHandler::trapAndRemoveFalse(fn () => $sqlite->prepare($query));
+		} catch (ErrorException) {
 			throw new SqlError(SqlError::STAGE_PREPARE, $sqlite->lastErrorMsg(), $query, $params);
 		}
-		foreach($params as $paramName => $param){
+		foreach ($params as $paramName => $param) {
 			$bind = $stmt->bindValue($paramName, $param);
-			if(!$bind){
+			if (!$bind) {
 				throw new SqlError(SqlError::STAGE_PREPARE, "when binding $paramName: " . $sqlite->lastErrorMsg(), $query, $params);
 			}
 		}
-		try{
-			$result = ErrorToExceptionHandler::trapAndRemoveFalse(fn() => $stmt->execute());
-		}catch(ErrorException){
+		try {
+			$result = ErrorToExceptionHandler::trapAndRemoveFalse(fn () => $stmt->execute());
+		} catch (ErrorException) {
 			throw new SqlError(SqlError::STAGE_EXECUTE, $sqlite->lastErrorMsg(), $query, $params);
 		}
-		switch($mode){
+		switch ($mode) {
 			case SqlThread::MODE_GENERIC:
 				$ret = new SqlResult();
 				$result->finalize();
@@ -115,8 +122,8 @@ class Sqlite3Thread extends SqlSlaveThread{
 				/** @var SqlColumnInfo[] $colInfo */
 				$colInfo = [];
 				$rows = [];
-				while(is_array($row = $result->fetchArray(SQLITE3_ASSOC))){
-					foreach(array_keys($row) as $i => $columnName){
+				while (is_array($row = $result->fetchArray(SQLITE3_ASSOC))) {
+					foreach (array_keys($row) as $i => $columnName) {
 						static $columnTypeMap = [
 							SQLITE3_INTEGER => SqlColumnInfo::TYPE_INT,
 							SQLITE3_FLOAT => SqlColumnInfo::TYPE_FLOAT,
@@ -126,12 +133,12 @@ class Sqlite3Thread extends SqlSlaveThread{
 						];
 						$value = $row[$columnName];
 						$colInfo[$i] = new SqlColumnInfo($columnName, $columnTypeMap[$result->columnType($i)]);
-						if($colInfo[$i]->getType() === SqlColumnInfo::TYPE_FLOAT){
-							if($value === "NAN"){
+						if ($colInfo[$i]->getType() === SqlColumnInfo::TYPE_FLOAT) {
+							if ($value === "NAN") {
 								$value = NAN;
-							}elseif($value === "INF"){
+							} elseif ($value === "INF") {
 								$value = INF;
-							}elseif($value === "-INF"){
+							} elseif ($value === "-INF") {
 								$value = -INF;
 							}
 						}
@@ -148,12 +155,14 @@ class Sqlite3Thread extends SqlSlaveThread{
 		throw new InvalidArgumentException("Unknown mode $mode");
 	}
 
-	protected function close(&$resource) : void{
+	protected function close(&$resource): void
+	{
 		assert($resource instanceof SQLite3);
 		$resource->close();
 	}
 
-	public function getThreadName() : string{
+	public function getThreadName(): string
+	{
 		return __NAMESPACE__ . " connector #$this->slaveNumber";
 	}
 }
