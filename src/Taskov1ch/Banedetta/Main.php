@@ -4,10 +4,7 @@ namespace Taskov1ch\Banedetta;
 
 use pocketmine\plugin\PluginBase;
 use Taskov1ch\Banedetta\listeners\EventsListener;
-use Taskov1ch\Banedetta\listeners\VkEventsListener;
 use Taskov1ch\Banedetta\managers\BansManager;
-use Taskov1ch\Banedetta\vk\managers\EventsManager;
-use Taskov1ch\Banedetta\vk\tasks\LongPoll;
 use Taskov1ch\Banedetta\vk\Vk;
 
 class Main extends PluginBase
@@ -28,6 +25,7 @@ class Main extends PluginBase
 		$this->bansManager = new BansManager($this);
 		$this->getServer()->getPluginManager()->registerEvents(new EventsListener($this), $this);
 		$this->saveDefaultConfig();
+		// $this->bansManager->ban("1223", "Tester", "hz", "testing");
 		// $this->syncPostsAndBans();
 	}
 
@@ -41,10 +39,7 @@ class Main extends PluginBase
 			return false;
 		}
 		$this->getLogger()->info("Токен успешно прошел проверку!");
-		$vk = $this->getConfig()->get("vk");
-		$this->getScheduler()->scheduleRepeatingTask(new LongPoll($vk["token"],
-			$vk["group_id"]), 1);
-		EventsManager::getInstance()->registerEvents(new VkEventsListener($this), $this);
+		$this->vk->initLongPoll();
 		return true;
 	}
 

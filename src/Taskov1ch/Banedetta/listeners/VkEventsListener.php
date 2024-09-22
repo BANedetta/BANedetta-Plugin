@@ -15,9 +15,8 @@ class VkEventsListener implements VkListener
 	public function onReply(WallReplyNewEvent $event): void
 	{
 		$data = $event->getUpdates();
-		$config = $this->main->getConfig()->get("vk");
 
-		if(!in_array($data["from_id"], $config["admins"])) return;
+		if(!in_array($data["from_id"], $this->main->getVk()->getAdmins())) return;
 
 		$bans = $this->main->getBansManager();
 		$bans->getDataByPostId($data["post_id"])->onCompletion(
@@ -32,39 +31,7 @@ class VkEventsListener implements VkListener
 					default => null
 				};
 			}, fn() => null
-		); // fix
-
-
-		// (match($data["text"])
-		// {
-		// 	"+" => function() use($data)
-		// 	{
-		// 		$bans = $this->main->getBansManager();
-		// 		$bans->getDataByPostId($data["post_id"])->onCompletion(
-		// 			function(?array $row) use($bans)
-		// 			{
-		// 				if((!$row) or $row["confirmed"] !== null) return;
-
-		// 				$bans->confirm($row["banned"]);
-		// 			}, fn() => null
-		// 		);
-		// 	},
-
-		// 	"-" => function() use($data)
-		// 	{
-		// 		$bans = $this->main->getBansManager();
-		// 		$bans->getDataByPostId($data["post_id"])->onCompletion(
-		// 			function(?array $row) use($bans)
-		// 			{
-		// 				if((!$row) or $row["confirmed"] !== null) return;
-
-		// 				$bans->deny($row["banned"]);
-		// 			}, fn() => null
-		// 		);
-		// 	},
-
-		// 	default => fn() => var_dump("хуйню выписал")
-		// })();
+		);
 	}
 
 }

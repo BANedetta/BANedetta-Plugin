@@ -4,7 +4,10 @@ namespace Taskov1ch\Banedetta\vk;
 
 use Exception;
 use pocketmine\utils\Internet;
+use Taskov1ch\Banedetta\listeners\VkEventsListener;
 use Taskov1ch\Banedetta\Main;
+use Taskov1ch\Banedetta\vk\managers\EventsManager;
+use Taskov1ch\Banedetta\vk\tasks\LongPoll;
 
 class Vk
 {
@@ -42,7 +45,17 @@ class Vk
 		}
 	}
 
+	public function initLongPoll(): void
+	{
+		$this->main->getScheduler()->scheduleRepeatingTask(new LongPoll($this->data["token"],
+			$this->data["group_id"]), 1);
+		EventsManager::getInstance()->registerEvents(new VkEventsListener($this->main), $this->main);
+	}
 
+	public function getAdmins(): array
+	{
+		return $this->data["admins"];
+	}
 
 	public function getReadyParamsForVk(
 		string $type = "waiting", string $nickname = "",
