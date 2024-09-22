@@ -19,9 +19,6 @@ class Vk
 		$this->data = $main->getConfig()->get("vk");
 	}
 
-
-
-
 	public function check(): bool
 	{
 		try {
