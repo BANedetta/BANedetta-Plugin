@@ -19,7 +19,7 @@ abstract class VkEvent
 		{
 			$plugin = Server::getInstance()->getPluginManager()->getPlugin($plugin_name);
 
-			if (!($plugin or $plugin->isEnabled())) EventsManager::getInstance()->removeClosures($plugin_name);
+			if (!$plugin or !$plugin->isEnabled()) EventsManager::getInstance()->removeClosures($plugin_name);
 
 			if (isset($closure_data[get_called_class()]))
 			{

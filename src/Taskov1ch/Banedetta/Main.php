@@ -3,15 +3,17 @@
 namespace Taskov1ch\Banedetta;
 
 use pocketmine\plugin\PluginBase;
+use Taskov1ch\Banedetta\listeners\EventsListener;
+use Taskov1ch\Banedetta\listeners\VkEventsListener;
 use Taskov1ch\Banedetta\managers\BansManager;
-use Taskov1ch\Banedetta\vk\tasks\LongPoll;
 use Taskov1ch\Banedetta\vk\managers\EventsManager;
+use Taskov1ch\Banedetta\vk\tasks\LongPoll;
 
 class Main extends PluginBase
 {
 
-	private BansManager $bansManager;
 	private static Main $instance;
+	private BansManager $bansManager;
 
 	public function onLoad(): void
 	{
@@ -21,15 +23,21 @@ class Main extends PluginBase
 	public function onEnable(): void
 	{
 		$this->bansManager = new BansManager($this);
-		EventsManager::getInstance()->registerEvents(new VkEventsListener($this), $this);
+		$this->getServer()->getPluginManager()->registerEvents(new EventsListener($this), $this);
 		$this->saveDefaultConfig();
+		$this->initVk();
+		// $this->syncPostsAndBans();
+	}
+
+	private function initVk(): void
+	{
 		$vk = $this->getConfig()->get("vk");
 		$this->getScheduler()->scheduleRepeatingTask(new LongPoll($vk["token"], $vk["group_id"]), 1);
-		$this->bansManager->ban("ifjfj", "Tester", "Hz", "LOX");
-		$this->bansManager->ban("testtwo", "BIN", "Hz", "LOX");
-		// var_dump("ok");
-		// $this->bansManager->unban("tester");
+		EventsManager::getInstance()->registerEvents(new VkEventsListener($this), $this);
 	}
+
+	// private function syncPostsAndBans(): void
+	// {}
 
 	public function getBansManager(): BansManager
 	{
@@ -56,7 +64,8 @@ class Main extends PluginBase
 				["{nickname}", "{reason}", "{by}"],
 				[$nickname, $reason, $by],
 				$vk["posts"][$type]["message"]
-			)
+			),
+			// "posts" => implode(",", $posts)
 		];
 		if($postId) $params["post_id"] = $postId;
 

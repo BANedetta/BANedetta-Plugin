@@ -4,11 +4,13 @@
 	-- #{ init
 		CREATE TABLE IF NOT EXISTS bans (
 			banned TEXT,
-			postId INT DEFAULT -1,
+			postId INT DEFAULT NULL,
 			nickname TEXT,
 			`by` TEXT,
 			reason TEXT,
-			confirmed BOOLEAN DEFAULT NULL
+			confirmed BOOLEAN DEFAULT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			message TEXT
 		);
 	-- #}
 -- #}
@@ -19,8 +21,9 @@
 		-- # :nickname string
 		-- # :by string
 		-- # :reason string
-		INSERT INTO bans(banned, `by`, nickname, reason)
-		VALUES (:banned, :by, :nickname, :reason);
+		-- # :message string
+		INSERT INTO bans(banned, by, nickname, reason, message)
+		VALUES (:banned, :by, :nickname, :reason, :message);
 	-- #}
 
 	-- #{ confirm
@@ -61,5 +64,12 @@
 		-- # :banned string
 		DELETE FROM bans
 		WHERE banned = :banned;
+	-- #}
+
+	-- #{ getAllData
+		-- # :page int
+		SELECT *
+		FROM bans
+		LIMIT 30 OFFSET (:page - 1) * 30;
 	-- #}
 -- #}

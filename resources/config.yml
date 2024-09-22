@@ -1,10 +1,10 @@
-# Какой метод банов пердпочитаете? ("nick", "xid")
-ban_method: nick
+# Какой метод банов пердпочитаете? ("nickname", "xuid")
+ban_method: nickname
 
 vk:
   # Да простят меня боги программирования за то что храню такую инфу в конфиге
   # Ключ доступа пользователя, полученным в Standalone-приложении через Implicit Flow
-  token: "vk1.a.dci74ySBJv87dyCETKTnfCL2vrdcWrfjsG7TAdezhs6hJu_ZQMjv8KipWi69djL7R6MWUG5Ma_6WcYkbPpzdjodZf0D1VIgvFQng5RQtBP8sKgblspAxb-YJ3kc3oVEF4ngMdw9G7XOdoALBrRHVai0euQPdKMiYOgM0K3-Nlg3_gPsGquG2r2OE6m1_Pn7TkecdLEAV-S1n2czH7z1ukQ"
+  token: ""
 
   # ID сообщества (без минуса)
   group_id: 224130500
@@ -34,6 +34,9 @@ vk:
         Игрок {nickname} был заблокирован игроком {by}
         Причина: {reason}.
         Не подверждено! Игрок был разблокирован.
+
+messages:
+  ban_message: "Игрок {banned} был забло"
 
 databases:
   # Тип базы данных. Поддерживаются "sqlite" и "mysql".
