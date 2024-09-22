@@ -1,7 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) ."/vendor/autoload.php");
-
 $config = new PhpCsFixer\Config();
 $config->setRules([
 	"@PSR2" => true,
