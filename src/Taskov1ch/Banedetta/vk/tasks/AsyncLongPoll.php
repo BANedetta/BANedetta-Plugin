@@ -6,6 +6,7 @@ use Taskov1ch\Banedetta\vk\events\VkEvents;
 use Taskov1ch\Banedetta\vk\tasks\States;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;
+use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncLongPoll extends AsyncTask
 {
@@ -27,7 +28,7 @@ class AsyncLongPoll extends AsyncTask
 			"group_id" => $this->group_id,
 			"v" => 5.199
 		];
-		$request = Internet::getURL("https://api.vk.com/method/groups.getLongPollServer?" . http_build_query($params))->getBody();
+		$request = Internet::getURL(Vk::ENDPOINT . "groups.getLongPollServer?" . http_build_query($params))->getBody();
 		$response = json_decode($request, true)["response"];
 		$this->server = $response["server"];
 		$this->key = $response["key"];

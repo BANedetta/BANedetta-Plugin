@@ -5,6 +5,7 @@ namespace Taskov1ch\Banedetta\vk\tasks;
 use Taskov1ch\Banedetta\Main;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;
+use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncWallPost extends AsyncTask
 {
@@ -17,7 +18,7 @@ class AsyncWallPost extends AsyncTask
 
 	public function onRun(): void
 	{
-		$request = Internet::getURL("https://api.vk.com/method/wall.post?" . $this->params)->getBody();
+		$request = Internet::getURL(Vk::ENDPOINT . "wall.post?" . $this->params)->getBody();
 		$this->setResult(json_decode($request, true)["response"]);
 	}
 

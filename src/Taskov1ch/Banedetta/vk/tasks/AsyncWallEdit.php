@@ -4,6 +4,7 @@ namespace Taskov1ch\Banedetta\vk\tasks;
 
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;
+use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncWallEdit extends AsyncTask
 {
@@ -13,7 +14,7 @@ class AsyncWallEdit extends AsyncTask
 
 	public function onRun(): void
 	{
-		$request = Internet::getURL("https://api.vk.com/method/wall.edit?" . $this->params);
+		$request = Internet::getURL(Vk::ENDPOINT . "wall.edit?" . $this->params);
 	}
 
 }

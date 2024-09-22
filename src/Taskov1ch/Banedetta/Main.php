@@ -8,12 +8,14 @@ use Taskov1ch\Banedetta\listeners\VkEventsListener;
 use Taskov1ch\Banedetta\managers\BansManager;
 use Taskov1ch\Banedetta\vk\managers\EventsManager;
 use Taskov1ch\Banedetta\vk\tasks\LongPoll;
+use Taskov1ch\Banedetta\vk\Vk;
 
 class Main extends PluginBase
 {
 
 	private static Main $instance;
 	private BansManager $bansManager;
+	private Vk $vk;
 
 	public function onLoad(): void
 	{
@@ -22,54 +24,43 @@ class Main extends PluginBase
 
 	public function onEnable(): void
 	{
+		if(!$this->initVk()) return;
 		$this->bansManager = new BansManager($this);
 		$this->getServer()->getPluginManager()->registerEvents(new EventsListener($this), $this);
 		$this->saveDefaultConfig();
-		$this->initVk();
 		// $this->syncPostsAndBans();
 	}
 
-	private function initVk(): void
+	private function initVk(): bool
 	{
+		$this->vk = new Vk($this);
+		$this->getLogger()->warning("Проверка токена...");
+		if(!$this->vk->check())
+		{
+			$this->getLogger()->error("Не удалось проверить токен. Плагин будет не доступен");
+			return false;
+		}
+		$this->getLogger()->info("Токен успешно прошел проверку!");
 		$vk = $this->getConfig()->get("vk");
-		$this->getScheduler()->scheduleRepeatingTask(new LongPoll($vk["token"], $vk["group_id"]), 1);
+		$this->getScheduler()->scheduleRepeatingTask(new LongPoll($vk["token"],
+			$vk["group_id"]), 1);
 		EventsManager::getInstance()->registerEvents(new VkEventsListener($this), $this);
+		return true;
 	}
-
-	// private function syncPostsAndBans(): void
-	// {}
 
 	public function getBansManager(): BansManager
 	{
 		return $this->bansManager;
 	}
 
+	public function getVk(): Vk
+	{
+		return $this->vk;
+	}
+
 	public static function getInstance(): self
 	{
 		return self::$instance;
-	}
-
-	public function getReadyParamsForVk(
-		string $type = "waiting", string $nickname = "",
-		string $reason = "", string $by = "", ?int $postId = null
-	): string {
-		$vk = $this->getConfig()->get("vk");
-		$params = [
-			"access_token" => $vk["token"],
-			"v" => 5.199,
-			"owner_id" => -$vk["group_id"],
-			"from_group" => 1,
-			"attachments" => $vk["posts"][$type]["attachment"],
-			"message" => str_replace(
-				["{nickname}", "{reason}", "{by}"],
-				[$nickname, $reason, $by],
-				$vk["posts"][$type]["message"]
-			),
-			// "posts" => implode(",", $posts)
-		];
-		if($postId) $params["post_id"] = $postId;
-
-		return http_build_query($params);
 	}
 
 }

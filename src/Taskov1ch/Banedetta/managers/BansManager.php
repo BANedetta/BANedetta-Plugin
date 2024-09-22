@@ -53,7 +53,7 @@ class BansManager
 				], function() use($nickname, $reason, $by, $banned, $player, $message): void
 				{
 					$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallPost(
-						$this->main->getReadyParamsForVk("waiting", $nickname, $reason, $by), $banned));
+						$this->main->getVk()->getReadyParamsForVk("waiting", $nickname, $reason, $by), $banned));
 
 					if($player and $player->isOnline()) $player->kick($message);
 				});
@@ -71,7 +71,7 @@ class BansManager
 
 				$this->db->executeGeneric("bans.remove", ["banned" => $banned],
 					fn(): int => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallDelete(
-						$this->main->getReadyParamsForVk(postId: $row["postId"])
+						$this->main->getVk()->getReadyParamsForVk(postId: $row["postId"])
 					))
 				);
 			}, fn() => null
@@ -88,7 +88,7 @@ class BansManager
 
 				$this->db->executeChange("bans.confirm", ["banned" => $banned, "confirmed" => true],
 				fn() => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
-					$this->main->getReadyParamsForVk("confirmed", $row["nickname"], $row["reason"],
+					$this->main->getVk()->getReadyParamsForVk("confirmed", $row["nickname"], $row["reason"],
 						$row["by"], $row["postId"]
 					)
 				))
@@ -107,7 +107,7 @@ class BansManager
 
 				$this->db->executeChange("bans.confirm", ["banned" => $banned, "confirmed" => false],
 				fn(): int => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
-					$this->main->getReadyParamsForVk("denied", $row["nickname"], $row["reason"],
+					$this->main->getVk()->getReadyParamsForVk("denied", $row["nickname"], $row["reason"],
 						$row["by"], $row["postId"]
 					)
 				))
