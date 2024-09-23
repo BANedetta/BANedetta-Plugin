@@ -11,7 +11,7 @@ class AsyncWallPost extends AsyncTask
 {
 	public function __construct(
 		private readonly string $params,
-		private readonly string $banned
+		private readonly string $nickname
 	) {
 	}
 

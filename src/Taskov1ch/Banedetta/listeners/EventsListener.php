@@ -3,9 +3,7 @@
 namespace Taskov1ch\Banedetta\listeners;
 
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerJoinEvent;
-// use pocketmine\event\player\PlayerLoginEvent; // Невозможно кикнуть со своим сообщением (ну или я что-то делал не так)
-// use pocketmine\event\player\PlayerPreLoginEvent; // Нету Xuid
+use pocketmine\event\player\PlayerPreLoginEvent;
 use Taskov1ch\Banedetta\Main;
 
 class EventsListener implements Listener
@@ -14,15 +12,14 @@ class EventsListener implements Listener
 	{
 	}
 
-	public function onJoin(PlayerJoinEvent $event): void
+	public function onJoin(PlayerPreLoginEvent $event): void
 	{
-		$player = $event->getPlayer();
+		$nickname = $event->getPlayerInfo()->getUsername();
 		$bans = $this->main->getBansManager();
-		$bans->getDataByPlayer($player)->onCompletion(
-			function (?array $row) use ($event, $player): void {
+		$bans->getData($nickname)->onCompletion(
+			function (?array $row) use ($event): void {
 				if ($row) {
-					$event->setJoinMessage("");
-					$player->kick($row["message"]);
+					$event->setKickFlag(PlayerPreLoginEvent::KICK_FLAG_BANNED, $row["message"]);
 				}
 			},
 			fn (): null => null

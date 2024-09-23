@@ -3,7 +3,6 @@
 -- #{ table
 	-- #{ init
 		CREATE TABLE IF NOT EXISTS bans (
-			banned TEXT,
 			postId INTEGER DEFAULT NULL,
 			nickname TEXT,
 			by TEXT,
@@ -17,27 +16,27 @@
 
 -- #{ bans
 	-- #{ add
-		-- # :banned string
 		-- # :nickname string
 		-- # :by string
 		-- # :reason string
 		-- # :message string
-		INSERT INTO bans(banned, by, nickname, reason, message)
-		VALUES (:banned, :by, :nickname, :reason, :message);
+		INSERT INTO bans(nickname, by, reason, message)
+		VALUES (:nickname, :by, :reason, :message);
 	-- #}
 
 	-- #{ confirm
-		-- # :banned string
+		-- # :nickname string
 		-- # :confirmed bool
+		-- # :message string
 		UPDATE bans
 		SET confirmed = :confirmed
-		WHERE banned = :banned;
+		WHERE nickname = :nickname;
 	-- #}
 
 	-- #{ getData
-		-- # :banned string
+		-- # :nickname string
 		SELECT * FROM bans
-		WHERE banned = :banned
+		WHERE nickname = :nickname
 	-- #}
 
 	-- #{ getDataByNickname
@@ -53,17 +52,17 @@
 	-- #}
 
 	-- #{ setPostId
-		-- # :banned string
+		-- # :nickname string
 		-- # :postId int
 		UPDATE bans
 		SET postId = :postId
-		WHERE banned = :banned;
+		WHERE nickname = :nickname;
 	-- #}
 
 	-- #{ remove
-		-- # :banned string
+		-- # :nickname string
 		DELETE FROM bans
-		WHERE banned = :banned;
+		WHERE nickname = :nickname;
 	-- #}
 
 	-- #{ getAllData

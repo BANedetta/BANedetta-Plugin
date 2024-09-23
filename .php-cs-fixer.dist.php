@@ -7,9 +7,6 @@ $config->setRules([
 	"no_extra_blank_lines" => true,
 ]);
 $config->setIndent("\t");
-$config->setFinder(
-	PhpCsFixer\Finder::create()
-		->in(__DIR__)
-);
+$config->setFinder(PhpCsFixer\Finder::create()->in(__DIR__));
 
 return $config;
