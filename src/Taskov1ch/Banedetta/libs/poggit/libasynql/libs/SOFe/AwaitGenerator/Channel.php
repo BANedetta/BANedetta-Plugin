@@ -22,15 +22,13 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator;
 
-use function array_shift;
-
-use function count;
-
 use Generator;
+
+use function array_shift;
+use function count;
 
 /**
  * A channel allows coroutines to communicate by sending and polling values in an FIFO stream.
- *
  * @template T
  */
 final class Channel
@@ -67,12 +65,10 @@ final class Channel
 			// $key holds the object reference directly instead of the key to avoid GC causing spl_object_id duplicate
 			$key = null;
 
-			yield from Await::promise(
-				function ($resolve) use ($value, &$key) {
-					$key = $resolve;
-					$this->state->queue[spl_object_id($key)] = [$value, $resolve];
-				}
-			);
+			yield from Await::promise(function ($resolve) use ($value, &$key) {
+				$key = $resolve;
+				$this->state->queue[spl_object_id($key)] = [$value, $resolve];
+			});
 		} finally {
 			if ($key !== null) {
 				if ($this->state instanceof SendingChannelState) {
@@ -147,12 +143,10 @@ final class Channel
 			// $key holds the object reference directly instead of the key to avoid GC causing spl_object_id duplicate
 			$key = null;
 
-			return yield from Await::promise(
-				function ($resolve) use (&$key) {
-					$key = $resolve;
-					$this->state->queue[spl_object_id($key)] = $resolve;
-				}
-			);
+			return yield from Await::promise(function ($resolve) use (&$key) {
+				$key = $resolve;
+				$this->state->queue[spl_object_id($key)] = $resolve;
+			});
 		} finally {
 			if ($key !== null) {
 				if ($this->state instanceof ReceivingChannelState) {
@@ -173,7 +167,7 @@ final class Channel
 	 * Returns `$default` if there is no sender waiting.
 	 *
 	 * @template U
-	 * @param    U $default
+	 * @param U $default
 	 *
 	 * @return T|U
 	 */

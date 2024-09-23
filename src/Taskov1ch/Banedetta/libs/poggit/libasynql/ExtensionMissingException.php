@@ -22,14 +22,12 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
-use function file;
-use function is_file;
-
-use function php_ini_loaded_file;
-
 use pocketmine\utils\TextFormat;
 use RuntimeException;
 
+use function file;
+use function is_file;
+use function php_ini_loaded_file;
 use function strpos;
 
 class ExtensionMissingException extends RuntimeException

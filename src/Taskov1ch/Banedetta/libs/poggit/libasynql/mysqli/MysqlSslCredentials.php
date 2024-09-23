@@ -27,31 +27,20 @@ use mysqli;
 
 class MysqlSslCredentials implements JsonSerializable
 {
-	/**
-	 * @var string|null $key
-	 */
+	/** @var string|null $key */
 	private $key;
-	/**
-	 * @var string $certificate
-	 */
+	/** @var string $certificate */
 	private $certificate;
-	/**
-	 * @var string|null $caCertificate
-	 */
+	/** @var string|null $caCertificate */
 	private $caCertificate;
-	/**
-	 * @var string|null $caPath
-	 */
+	/** @var string|null $caPath */
 	private $caPath;
-	/**
-	 * @var string|null $cipherAlgorithms
-	 */
+	/** @var string|null $cipherAlgorithms */
 	private $cipherAlgorithms;
 
 	/**
 	 * Creates a new {@link MysqlSslCredentials} instance from an array (e.g. from Config), with empty default values.
-	 *
-	 * @param  array $array
+	 * @param array $array
 	 * @return MysqlSslCredentials
 	 */
 	public static function fromArray(array $array): MysqlSslCredentials
@@ -68,10 +57,10 @@ class MysqlSslCredentials implements JsonSerializable
 	/**
 	 * Constructs a new {@link MysqlSslCredentials} by passing parameters directly.
 	 *
-	 * @param string|null $key              - The path name to the key file
-	 * @param string|null $certificate      - The path name to the certificate file
-	 * @param string|null $caCertificate    - The path name to the certificate authority file
-	 * @param string|null $caPath           - The path name to a directory that contains trusted SSL CA certificates in PEM format
+	 * @param string|null $key - The path name to the key file
+	 * @param string|null $certificate - The path name to the certificate file
+	 * @param string|null $caCertificate - The path name to the certificate authority file
+	 * @param string|null $caPath - The path name to a directory that contains trusted SSL CA certificates in PEM format
 	 * @param string|null $cipherAlgorithms - A list of allowable ciphers used for SSL encryption
 	 */
 	public function __construct(?string $key = null, ?string $certificate = null, ?string $caCertificate = null, ?string $caPath = null, ?string $cipherAlgorithms = null)
@@ -102,11 +91,11 @@ class MysqlSslCredentials implements JsonSerializable
 	public function jsonSerialize(): array
 	{
 		return [
-		"key" => $this->key,
-		"certificate" => $this->certificate,
-		"caCertificate" => $this->caCertificate,
-		"caPath" => $this->caPath,
-		"cipherAlgorithms" => $this->cipherAlgorithms,
+			"key" => $this->key,
+			"certificate" => $this->certificate,
+			"caCertificate" => $this->caCertificate,
+			"caPath" => $this->caPath,
+			"cipherAlgorithms" => $this->cipherAlgorithms,
 		];
 	}
 }

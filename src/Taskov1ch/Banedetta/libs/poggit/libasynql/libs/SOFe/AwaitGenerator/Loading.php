@@ -36,9 +36,7 @@ use Generator;
  */
 final class Loading
 {
-	/**
-	 * @var list<Closure(): void>|null
-	 */
+	/** @var list<Closure(): void>|null */
 	private ?array $onLoaded = [];
 	private $value;
 
@@ -47,21 +45,19 @@ final class Loading
 	 */
 	public function __construct(Closure $loader)
 	{
-		Await::f2c(
-			function () use ($loader) {
-				$this->value = yield from $loader();
-				$onLoaded = $this->onLoaded;
-				$this->onLoaded = null;
+		Await::f2c(function () use ($loader) {
+			$this->value = yield from $loader();
+			$onLoaded = $this->onLoaded;
+			$this->onLoaded = null;
 
-				if ($onLoaded === null) {
-					throw new AssertionError("loader is called twice on the same object");
-				}
-
-				foreach ($onLoaded as $closure) {
-					$closure();
-				}
+			if ($onLoaded === null) {
+				throw new AssertionError("loader is called twice on the same object");
 			}
-		);
+
+			foreach ($onLoaded as $closure) {
+				$closure();
+			}
+		});
 	}
 
 	/**
@@ -70,15 +66,11 @@ final class Loading
 	public static function byCallback(): array
 	{
 		$callback = null;
-		$loading = new self(
-			function () use (&$callback) {
-				return yield from Await::promise(
-					function ($resolve) use (&$callback) {
-						$callback = $resolve;
-					}
-				);
-			}
-		);
+		$loading = new self(function () use (&$callback) {
+			return yield from Await::promise(function ($resolve) use (&$callback) {
+				$callback = $resolve;
+			});
+		});
 		return [$loading, $callback];
 	}
 
@@ -92,12 +84,10 @@ final class Loading
 				// $key holds the object reference directly instead of the key to avoid GC causing spl_object_id duplicate
 				$key = null;
 
-				yield from Await::promise(
-					function ($resolve) use (&$key) {
-						$key = $resolve;
-						$this->onLoaded[spl_object_id($key)] = $resolve;
-					}
-				);
+				yield from Await::promise(function ($resolve) use (&$key) {
+					$key = $resolve;
+					$this->onLoaded[spl_object_id($key)] = $resolve;
+				});
 			} finally {
 				if ($key !== null) {
 					unset($this->onLoaded[spl_object_id($key)]);
@@ -110,8 +100,8 @@ final class Loading
 
 	/**
 	 * @template U
-	 * @param    U $default
-	 * @return   T|U
+	 * @param U $default
+	 * @return T|U
 	 */
 	public function getSync($default)
 	{

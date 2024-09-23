@@ -22,14 +22,13 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\generic;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 use function array_map;
 use function assert;
-
 use function bin2hex;
 use function implode;
-
-use InvalidArgumentException;
-
 use function is_array;
 use function is_bool;
 use function is_finite;
@@ -38,8 +37,6 @@ use function is_int;
 use function is_string;
 use function rand;
 use function random_bytes;
-
-use RuntimeException;
 
 class MysqlStatementImpl extends GenericStatementImpl
 {
@@ -57,19 +54,13 @@ class MysqlStatementImpl extends GenericStatementImpl
 					throw new InvalidArgumentException("Cannot pass an empty array for :{$variable->getName()}");
 				}
 
-				return "("" . bin2hex(random_bytes(20)) . ")";
+				return "('" . bin2hex(random_bytes(20)) . ")";
 			}
 
 			$unlist = $variable->unlist();
-			return "(" . implode(
-				",",
-				array_map(
-					function ($value) use ($unlist, $placeHolder, &$outArgs) {
-						return $this->formatVariable($unlist, $value, $placeHolder, $outArgs);
-					},
-					$value
-				)
-			) . ")";
+			return "(" . implode(",", array_map(function ($value) use ($unlist, $placeHolder, &$outArgs) {
+				return $this->formatVariable($unlist, $value, $placeHolder, $outArgs);
+			}, $value)) . ")";
 		}
 
 		if ($value === null) {

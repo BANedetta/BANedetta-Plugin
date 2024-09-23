@@ -31,11 +31,11 @@ class GeneratorUtil
 	/**
 	 * Returns a generator that yields nothing and returns $ret
 	 *
-	 * @param  mixed $ret
+	 * @param mixed $ret
 	 * @return Generator
 	 *
-	 * @template       T
-	 * @phpstan-param  T $ret
+	 * @template T
+	 * @phpstan-param T $ret
 	 * @phpstan-return Generator<never, never, never, T>
 	 */
 	public static function empty($ret = null): Generator
@@ -48,14 +48,14 @@ class GeneratorUtil
 	 * Returns a generator that yields nothing and throws $throwable
 	 *
 	 * @template T of Throwable
-	 * @param    Throwable $throwable
+	 * @param Throwable $throwable
 	 *
 	 * @return Generator
 	 * @throws Throwable
 	 *
-	 * @phpstan-param  T $throwable
+	 * @phpstan-param T $throwable
 	 * @phpstan-return Generator<never, never, never, never>
-	 * @throws         T
+	 * @throws T
 	 */
 	public static function throw(Throwable $throwable): Generator
 	{
@@ -73,10 +73,7 @@ class GeneratorUtil
 	 */
 	public static function pending(): Generator
 	{
-		yield from Await::promise(
-			function (): void {
-			}
-		);
+		yield from Await::promise(function (): void {});
 		throw new AssertionError("this line is unreachable");
 	}
 }

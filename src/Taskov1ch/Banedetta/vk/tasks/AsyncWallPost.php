@@ -2,9 +2,9 @@
 
 namespace Taskov1ch\Banedetta\vk\tasks;
 
+use Taskov1ch\Banedetta\Main;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;
-use Taskov1ch\Banedetta\Main;
 use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncWallPost extends AsyncTask

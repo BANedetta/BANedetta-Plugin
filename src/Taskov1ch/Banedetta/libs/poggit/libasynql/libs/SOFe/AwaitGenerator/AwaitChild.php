@@ -29,9 +29,7 @@ use Throwable;
  */
 class AwaitChild extends PromiseState
 {
-	/**
-	 * @var Await<ParentT>
-	 */
+	/** @var Await<ParentT> */
 	protected $await;
 
 	/**

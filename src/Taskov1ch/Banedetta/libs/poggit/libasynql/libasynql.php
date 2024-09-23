@@ -22,29 +22,23 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
-use function array_keys;
-use function count;
-use function extension_loaded;
-use function implode;
-
 use InvalidArgumentException;
-
-use function is_array;
-use function is_string;
-
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Terminal;
-
 use pocketmine\utils\Utils;
-
-use function strtolower;
-
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\DataConnectorImpl;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\SqlThreadPool;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\mysqli\MysqlCredentials;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\mysqli\MysqliThread;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\sqlite3\Sqlite3Thread;
 
+use function array_keys;
+use function count;
+use function extension_loaded;
+use function implode;
+use function is_array;
+use function is_string;
+use function strtolower;
 use function usleep;
 
 /**
@@ -52,9 +46,7 @@ use function usleep;
  */
 final class libasynql
 {
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	private static $packaged;
 
 	public static function isPackaged(): bool
@@ -64,7 +56,7 @@ final class libasynql
 
 	public static function detectPackaged(): void
 	{
-		self::$packaged = __CLASS__ !== "poggit\libasynql\libasynql";
+		self::$packaged = __CLASS__ !== 'poggit\libasynql\libasynql';
 
 		if (!self::$packaged && defined("pocketmine\\VERSION")) {
 			echo Terminal::$COLOR_YELLOW . "Warning: Use of unshaded libasynql detected. Debug mode is enabled. This may lead to major performance drop. Please use a shaded package in production. See https://poggit.pmmp.io/virion for more information.\n";
@@ -80,7 +72,7 @@ final class libasynql
 	 *
 	 * @param PluginBase          $plugin     the plugin using libasynql
 	 * @param mixed               $configData the config entry for database settings
-	 * @param string[]|string[][] $sqlMap     an associative array with key as the SQL dialect ("mysql", "sqlite") and value as a string or string array indicating the relevant SQL files in the plugin"s resources directory
+	 * @param string[]|string[][] $sqlMap     an associative array with key as the SQL dialect ("mysql", "sqlite") and value as a string or string array indicating the relevant SQL files in the plugin's resources directory
 	 * @param bool                $logQueries whether libasynql should log the queries with the plugin logger at the DEBUG level. Default <code>!libasynql::isPackaged()</code>.
 	 *
 	 * @return DataConnector
@@ -100,7 +92,7 @@ final class libasynql
 		}
 
 		if (count($sqlMap) === 0) {
-			throw new InvalidArgumentException("Parameter $sqlMap cannot be empty");
+			throw new InvalidArgumentException('Parameter $sqlMap cannot be empty');
 		}
 
 		$pdo = ($configData["prefer-pdo"] ?? false) && extension_loaded("pdo");
@@ -147,7 +139,7 @@ final class libasynql
 		}
 
 		if (!isset($dialect, $factory, $sqlMap[$dialect])) {
-			throw new ConfigException("Unsupported database type \"$type\". Try \"" . implode("" or "", array_keys($sqlMap)) . "".");
+			throw new ConfigException("Unsupported database type \"$type\". Try \"" . implode("\" or \"", array_keys($sqlMap)) . "\".");
 		}
 
 		$pool = new SqlThreadPool($factory, $configData["worker-limit"] ?? 1);

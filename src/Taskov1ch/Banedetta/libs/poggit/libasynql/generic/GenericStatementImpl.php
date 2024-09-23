@@ -22,64 +22,41 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\generic;
 
-use function array_key_exists;
-
 use AssertionError;
+use InvalidArgumentException;
+use JsonSerializable;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlDialect;
 
+use function array_key_exists;
 use function get_class;
 use function gettype;
 use function in_array;
-
-use InvalidArgumentException;
-
 use function is_object;
-
-use JsonSerializable;
-
 use function mb_strlen;
 use function mb_strpos;
 use function mb_substr;
 use function str_replace;
-
-use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlDialect;
-
 use function uksort;
 
 abstract class GenericStatementImpl implements GenericStatement, JsonSerializable
 {
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $name;
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	protected $query;
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	protected $doc;
-	/**
-	 * @var GenericVariable[]
-	 */
+	/** @var GenericVariable[] */
 	protected $orderedVariables;
-	/**
-	 * @var GenericVariable[]
-	 */
+	/** @var GenericVariable[] */
 	protected $variables;
-	/**
-	 * @var string|null
-	 */
+	/** @var string|null */
 	protected $file;
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	protected $lineNo;
 
-	/**
-	 * @var string[][]
-	 */
+	/** @var string[][] */
 	protected $varPositions = [];
 
 	public function getName(): string
@@ -118,20 +95,20 @@ abstract class GenericStatementImpl implements GenericStatement, JsonSerializabl
 	}
 
 	/**
-	 * @param  string            $dialect
-	 * @param  string            $name
-	 * @param  string[]          $query
-	 * @param  string            $doc
-	 * @param  GenericVariable[] $variables
-	 * @param  string|null       $file
-	 * @param  int               $lineNo
+	 * @param string            $dialect
+	 * @param string            $name
+	 * @param string[]          $query
+	 * @param string            $doc
+	 * @param GenericVariable[] $variables
+	 * @param string|null       $file
+	 * @param int               $lineNo
 	 * @return GenericStatementImpl
 	 */
 	public static function forDialect(string $dialect, string $name, array $query, string $doc, array $variables, ?string $file, int $lineNo): GenericStatementImpl
 	{
 		static $classMap = [
-		SqlDialect::MYSQL => MysqlStatementImpl::class,
-		SqlDialect::SQLITE => SqliteStatementImpl::class,
+			SqlDialect::MYSQL => MysqlStatementImpl::class,
+			SqlDialect::SQLITE => SqliteStatementImpl::class,
 		];
 		$className = $classMap[$dialect];
 		return new $className($name, $query, $doc, $variables, $file, $lineNo);
@@ -152,12 +129,9 @@ abstract class GenericStatementImpl implements GenericStatement, JsonSerializabl
 
 	protected function compilePositions(): void
 	{
-		uksort(
-			$this->variables,
-			static function ($s1, $s2) {
-				return mb_strlen($s2) <=> mb_strlen($s1);
-			}
-		);
+		uksort($this->variables, static function ($s1, $s2) {
+			return mb_strlen($s2) <=> mb_strlen($s1);
+		});
 
 		$usedNames = [];
 
@@ -183,7 +157,7 @@ abstract class GenericStatementImpl implements GenericStatement, JsonSerializabl
 					}
 					continue;
 				}
-				if (in_array($thisChar, [""", """, "`"], true)) {
+				if (in_array($thisChar, ["'", "\"", "`"], true)) {
 					$quotesState = $thisChar;
 					continue;
 				}
@@ -210,7 +184,7 @@ abstract class GenericStatementImpl implements GenericStatement, JsonSerializabl
 			$lastPos = 0;
 			foreach ($positions as $pos => $name) {
 				$newBuffer .= mb_substr($buffer, $lastPos, $pos - $lastPos);
-				$this->varPositions[$bufferId][mb_strlen($newBuffer)] = $name; // we aren"t using $pos here, because we want the position in the cleaned string, not the position in the original query string
+				$this->varPositions[$bufferId][mb_strlen($newBuffer)] = $name; // we aren't using $pos here, because we want the position in the cleaned string, not the position in the original query string
 				$lastPos = $pos + mb_strlen($name) + 1;
 			}
 			$newBuffer .= mb_substr($buffer, $lastPos);
@@ -273,12 +247,12 @@ abstract class GenericStatementImpl implements GenericStatement, JsonSerializabl
 	public function jsonSerialize(): array
 	{
 		return [
-		"name" => $this->name,
-		"query" => $this->query,
-		"doc" => $this->doc,
-		"variables" => $this->variables,
-		"file" => $this->file,
-		"lineNo" => $this->lineNo,
+			"name" => $this->name,
+			"query" => $this->query,
+			"doc" => $this->doc,
+			"variables" => $this->variables,
+			"file" => $this->file,
+			"lineNo" => $this->lineNo,
 		];
 	}
 }

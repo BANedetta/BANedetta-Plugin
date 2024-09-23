@@ -24,9 +24,7 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\result;
 
 class SqlInsertResult extends SqlChangeResult
 {
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	private $insertId;
 
 	public function __construct(int $affectedRows, int $insertId)

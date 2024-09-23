@@ -29,13 +29,9 @@ use function serialize;
 
 class QuerySendQueue extends ThreadSafe
 {
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	private $invalidated = false;
-	/**
-	 * @var ThreadSafeArray
-	 */
+	/** @var ThreadSafeArray */
 	private $queries;
 
 	public function __construct()
@@ -48,34 +44,28 @@ class QuerySendQueue extends ThreadSafe
 		if ($this->invalidated) {
 			throw new QueueShutdownException("You cannot schedule a query on an invalidated queue.");
 		}
-		$this->synchronized(
-			function () use ($queryId, $modes, $queries, $params): void {
-				$this->queries[] = serialize([$queryId, $modes, $queries, $params]);
-				$this->notifyOne();
-			}
-		);
+		$this->synchronized(function () use ($queryId, $modes, $queries, $params): void {
+			$this->queries[] = serialize([$queryId, $modes, $queries, $params]);
+			$this->notifyOne();
+		});
 	}
 
 	public function fetchQuery(): ?string
 	{
-		return $this->synchronized(
-			function (): ?string {
-				while ($this->queries->count() === 0 && !$this->isInvalidated()) {
-					$this->wait();
-				}
-				return $this->queries->shift();
+		return $this->synchronized(function (): ?string {
+			while ($this->queries->count() === 0 && !$this->isInvalidated()) {
+				$this->wait();
 			}
-		);
+			return $this->queries->shift();
+		});
 	}
 
 	public function invalidate(): void
 	{
-		$this->synchronized(
-			function (): void {
-				$this->invalidated = true;
-				$this->notify();
-			}
-		);
+		$this->synchronized(function (): void {
+			$this->invalidated = true;
+			$this->notify();
+		});
 	}
 
 	/**

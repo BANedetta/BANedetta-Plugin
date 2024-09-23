@@ -22,77 +22,50 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\generic;
 
+use InvalidArgumentException;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
+
 use function array_pop;
 use function assert;
-
 use function count;
 use function fclose;
 use function fgets;
 use function implode;
-
-use InvalidArgumentException;
-
 use function ltrim;
 use function preg_split;
+use function strpos;
+use function substr;
+use function trim;
 
 use const PREG_SPLIT_NO_EMPTY;
 use const PREG_SPLIT_OFFSET_CAPTURE;
 
-use function strpos;
-use function substr;
-
-use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
-
-use function trim;
-
 class GenericStatementFileParser
 {
-	/**
-	 * @var string|null
-	 */
+	/** @var string|null */
 	private $fileName;
-	/**
-	 * @var resource
-	 */
+	/** @var resource */
 	private $fh;
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	private $lineNo = 0;
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private $identifierStack = [];
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	private $parsingQuery = false;
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private $docLines = [];
-	/**
-	 * @var GenericVariable[]
-	 */
+	/** @var GenericVariable[] */
 	private $variables = [];
 
-	/**
-	 * @var string[] the delimited buffers for the current query
-	 */
+	/** @var string[] the delimited buffers for the current query */
 	private $currentBuffers = [];
-	/**
-	 * @var string[] the lines for the current delimited query buffer
-	 */
+	/** @var string[] the lines for the current delimited query buffer */
 	private $buffer = [];
 
-	/**
-	 * @var string|null
-	 */
+	/** @var string|null */
 	private $knownDialect = null;
-	/**
-	 * @var GenericStatement[]
-	 */
+	/** @var GenericStatement[] */
 	private $results = [];
 
 	/**
@@ -134,7 +107,7 @@ class GenericStatementFileParser
 
 	private function readLine(int $lineNo, string $line): void
 	{
-		$this->lineNo = $lineNo; // In fact I don"t need this parameter. I just want to get the line number onto the stack trace.
+		$this->lineNo = $lineNo; // In fact I don't need this parameter. I just want to get the line number onto the stack trace.
 		$line = trim($line);
 
 		if ($line === "") {
@@ -159,16 +132,14 @@ class GenericStatementFileParser
 		}
 
 		$line = ltrim(substr($line, 4));
-		if ($line === "") {
+		if ($line === '') {
 			return true;
 		}
 		$cmd = $line[0];
 		$args = [];
 		$argOffsets = [];
-		$regex = /**
- * @lang RegExp
-*/
-		"/[ \t]/";
+		$regex = /** @lang RegExp */
+			'/[ \t]/';
 		foreach (preg_split($regex, substr($line, 1), -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE) as [$arg, $offset]) {
 			$args[] = $arg;
 			$argOffsets[] = $offset;
@@ -316,9 +287,9 @@ class GenericStatementFileParser
 	}
 
 	/**
-	 * @param  string $problem
+	 * @param string $problem
 	 * @return GenericStatementFileParseException
-	 * @throw  GenericStatementFileParseException
+	 * @throw GenericStatementFileParseException
 	 */
 	private function error(string $problem): GenericStatementFileParseException
 	{

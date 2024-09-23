@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator;
 
-use function assert;
-
 use Throwable;
+
+use function assert;
 
 abstract class PromiseState
 {
@@ -32,22 +32,14 @@ abstract class PromiseState
 	public const STATE_RESOLVED = 1;
 	public const STATE_REJECTED = 2;
 
-	/**
-	 * @var int
-	 */
+	/** @var int */
 	protected $state = self::STATE_PENDING;
-	/**
-	 * @var mixed
-	 */
+	/** @var mixed */
 	protected $resolved;
-	/**
-	 * @var Throwable
-	 */
+	/** @var Throwable */
 	protected $rejected;
 
-	/**
-	 * @var bool
-	 */
+	/** @var bool  */
 	protected $cancelled = false;
 
 	/**

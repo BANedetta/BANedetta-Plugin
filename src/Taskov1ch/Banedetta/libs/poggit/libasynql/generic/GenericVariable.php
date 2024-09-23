@@ -22,18 +22,14 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\generic;
 
-use function assert;
-use function in_array;
-
 use InvalidArgumentException;
-
 use InvalidStateException;
-
-use function is_string;
-use function json_decode;
-
 use JsonSerializable;
 
+use function assert;
+use function in_array;
+use function is_string;
+use function json_decode;
 use function stripos;
 use function strlen;
 use function strpos;
@@ -59,9 +55,7 @@ class GenericVariable implements JsonSerializable
 	protected $canEmpty = false;
 	protected $nullable = false;
 	protected $type;
-	/**
-	 * @var string|int|float|bool|null
-	 */
+	/** @var string|int|float|bool|null */
 	protected $default = null;
 
 	public function __construct(string $name, string $type, ?string $default)
@@ -72,16 +66,12 @@ class GenericVariable implements JsonSerializable
 		$this->name = $name;
 		if (stripos($type, "list:") === 0) {
 			$this->list = true;
-			/**
-	   * @noinspection CallableParameterUseCaseInTypeContextInspection
-*/
+			/** @noinspection CallableParameterUseCaseInTypeContextInspection */
 			$type = substr($type, strlen("list:"));
 		} elseif (stripos($type, "list?") === 0) {
 			$this->list = true;
 			$this->canEmpty = true;
-			/**
-	   * @noinspection CallableParameterUseCaseInTypeContextInspection
-*/
+			/** @noinspection CallableParameterUseCaseInTypeContextInspection */
 			$type = substr($type, strlen("list?"));
 		} elseif ($type[0] === "?") {
 			$this->nullable = true;
@@ -94,7 +84,7 @@ class GenericVariable implements JsonSerializable
 			}
 			switch ($type) {
 				case self::TYPE_STRING:
-					if ($default[0] === """ && $default[strlen($default) - 1] === """) {
+					if ($default[0] === "\"" && $default[strlen($default) - 1] === "\"") {
 						$default = json_decode($default);
 						assert(is_string($default));
 					}
@@ -114,15 +104,10 @@ class GenericVariable implements JsonSerializable
 					break;
 
 				case self::TYPE_TIMESTAMP:
-					if (!in_array(
-						strtoupper($default),
-						[
+					if (!in_array(strtoupper($default), [
 						self::TIME_NOW,
 						self::TIME_0,
-						],
-						true
-					)
-					) {
+					], true)) {
 						throw new InvalidArgumentException("Invalid timestamp default");
 					}
 					$this->default = $default;
@@ -157,7 +142,7 @@ class GenericVariable implements JsonSerializable
 	/**
 	 * Returns whether the list variable is declared with <code>list?</code> rather than <code>list:</code>.
 	 *
-	 * If the SQL dialect does not support empty list declarations <code>()</code>, and <code>list:</code> is used, an exception will be thrown when an empty array is passed as the value. If <code>list?</code> is used, a randomly-generated string will be filled into the array to satisfy the language"s requirements. This might cause undesired behaviour unless you are only using this variable for a simple <code>IN :list</code> condition.
+	 * If the SQL dialect does not support empty list declarations <code>()</code>, and <code>list:</code> is used, an exception will be thrown when an empty array is passed as the value. If <code>list?</code> is used, a randomly-generated string will be filled into the array to satisfy the language's requirements. This might cause undesired behaviour unless you are only using this variable for a simple <code>IN :list</code> condition.
 	 *
 	 * As this may expose a security breach or a performance degrade, plugins are not encouraged to use this method. Instead it is more desirable to check if the array is empty before passing the value into libasynql.
 	 *
@@ -223,11 +208,11 @@ class GenericVariable implements JsonSerializable
 	public function jsonSerialize(): array
 	{
 		return [
-		"name" => $this->name,
-		"isList" => $this->list,
-		"canEmpty" => $this->canEmpty,
-		"type" => $this->type,
-		"default" => $this->default,
+			"name" => $this->name,
+			"isList" => $this->list,
+			"canEmpty" => $this->canEmpty,
+			"type" => $this->type,
+			"default" => $this->default,
 		];
 	}
 }
