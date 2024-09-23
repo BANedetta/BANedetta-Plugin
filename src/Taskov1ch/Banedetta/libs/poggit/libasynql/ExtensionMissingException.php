@@ -29,14 +29,16 @@ use function is_file;
 use function php_ini_loaded_file;
 use function strpos;
 
-class ExtensionMissingException extends RuntimeException{
-	public function __construct(string $extensionName){
+class ExtensionMissingException extends RuntimeException
+{
+	public function __construct(string $extensionName)
+	{
 		$instructions = "Please install PHP according to the instructions from http://pmmp.readthedocs.io/en/rtfd/installation.html which provides the $extensionName extension.";
 
 		$ini = php_ini_loaded_file();
-		if($ini && is_file($ini)){
-			foreach(file($ini) as $i => $line){
-				if(strpos($line, ";extension=") !== false && stripos($line, $extensionName) !== false){
+		if ($ini && is_file($ini)) {
+			foreach (file($ini) as $i => $line) {
+				if (strpos($line, ";extension=") !== false && stripos($line, $extensionName) !== false) {
 					$instructions = TextFormat::GOLD . "Please remove the leading semicolon on line " . ($i + 1) . " of $ini and restart the server " . TextFormat::RED . "so that the $extensionName extension can be loaded.";
 				}
 			}

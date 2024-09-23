@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
-class SqlResult{
+class SqlResult
+{
 
 }

@@ -22,17 +22,18 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
-use InvalidArgumentException;
 use Generator;
+use InvalidArgumentException;
 use Logger;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\generic\GenericStatementFileParseException;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlColumnInfo;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator\Await;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlColumnInfo;
 
 /**
  * Represents a database connection or a group of database connections
  */
-interface DataConnector{
+interface DataConnector
+{
 	/**
 	 * If true, logger is set to the plugin logger. If false, queries are not logged.
 	 *

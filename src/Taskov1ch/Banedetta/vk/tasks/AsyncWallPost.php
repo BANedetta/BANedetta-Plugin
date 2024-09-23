@@ -2,9 +2,9 @@
 
 namespace Taskov1ch\Banedetta\vk\tasks;
 
-use Taskov1ch\Banedetta\Main;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;
+use Taskov1ch\Banedetta\Main;
 use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncWallPost extends AsyncTask
@@ -24,7 +24,7 @@ class AsyncWallPost extends AsyncTask
 	public function onCompletion(): void
 	{
 		$post_id = $this->getResult()["post_id"];
-		Main::getInstance()->getBansManager()->setPostId($this->banned, $post_id);
+		Main::getInstance()->getBansManager()->setPostId($this->nickname, $post_id);
 	}
 
 }

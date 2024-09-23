@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\base;
 
-
 use RuntimeException;
 
-class QueueShutdownException extends RuntimeException{
+class QueueShutdownException extends RuntimeException
+{
 
 }

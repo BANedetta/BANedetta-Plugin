@@ -37,16 +37,19 @@ use function is_string;
 use function rand;
 use function random_bytes;
 
-class MysqlStatementImpl extends GenericStatementImpl{
-	public function getDialect() : string{
+class MysqlStatementImpl extends GenericStatementImpl
+{
+	public function getDialect() : string
+	{
 		return "mysql";
 	}
 
-	protected function formatVariable(GenericVariable $variable, $value, ?string $placeHolder, array &$outArgs) : string{
-		if($variable->isList()){
+	protected function formatVariable(GenericVariable $variable, $value, ?string $placeHolder, array &$outArgs) : string
+	{
+		if ($variable->isList()) {
 			assert(is_array($value));
-			if(empty($value)){
-				if(!$variable->canBeEmpty()){
+			if (empty($value)) {
+				if (!$variable->canBeEmpty()) {
 					throw new InvalidArgumentException("Cannot pass an empty array for :{$variable->getName()}");
 				}
 
@@ -54,19 +57,19 @@ class MysqlStatementImpl extends GenericStatementImpl{
 			}
 
 			$unlist = $variable->unlist();
-			return "(" . implode(",", array_map(function($value) use ($unlist, $placeHolder, &$outArgs){
-					return $this->formatVariable($unlist, $value, $placeHolder, $outArgs);
-				}, $value)) . ")";
+			return "(" . implode(",", array_map(function ($value) use ($unlist, $placeHolder, &$outArgs) {
+				return $this->formatVariable($unlist, $value, $placeHolder, $outArgs);
+			}, $value)) . ")";
 		}
 
-		if($value === null){
-			if(!$variable->isNullable()){
+		if ($value === null) {
+			if (!$variable->isNullable()) {
 				throw new InvalidArgumentException("The variable :{$variable->getName()} is not nullable");
 			}
 			return "NULL";
 		}
 
-		switch($variable->getType()){
+		switch ($variable->getType()) {
 			case GenericVariable::TYPE_BOOL:
 				assert(is_bool($value));
 				return $value ? "1" : "0";
@@ -77,27 +80,27 @@ class MysqlStatementImpl extends GenericStatementImpl{
 
 			case GenericVariable::TYPE_FLOAT:
 				assert(is_int($value) || is_float($value));
-				if(!is_finite($value)){
+				if (!is_finite($value)) {
 					throw new InvalidArgumentException("Cannot encode $value in MySQL");
 				}
 				return (string) $value;
 
 			case GenericVariable::TYPE_STRING:
 				assert(is_string($value));
-				if($placeHolder !== null){
+				if ($placeHolder !== null) {
 					$outArgs[] = $value;
 					return $placeHolder;
 				}
 
-				do{
+				do {
 					$varName = ":var" . rand(0, 10000000);
-				}while(isset($outArgs[$varName]));
+				} while (isset($outArgs[$varName]));
 				$outArgs[$varName] = $value;
 				return " " . $varName . " ";
 
 			case GenericVariable::TYPE_TIMESTAMP:
 				assert(is_int($value) || is_float($value));
-				if($value === GenericVariable::TIME_NOW){
+				if ($value === GenericVariable::TIME_NOW) {
 					return "CURRENT_TIMESTAMP";
 				}
 				return "FROM_UNIXTIME($value)";

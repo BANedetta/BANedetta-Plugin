@@ -28,7 +28,8 @@ use RuntimeException;
  * A pubsub allows coroutines to publish a message that is received by all subscribres.
  * @template T
  */
-final class PubSub{
+final class PubSub
+{
 	/** @var Channel<T>[] */
 	private array $subscribers = [];
 
@@ -39,7 +40,8 @@ final class PubSub{
 	 */
 	public function __construct(
 		private ?int $maxLag = 10000,
-	) {}
+	) {
+	}
 
 	/**
 	 * Publishes a message and return.
@@ -48,10 +50,11 @@ final class PubSub{
 	 *
 	 * @phpstan-param T $item
 	 */
-	public function publish($item) : void{
-		foreach($this->subscribers as $subscriber) {
+	public function publish($item) : void
+	{
+		foreach ($this->subscribers as $subscriber) {
 			$subscriber->sendWithoutWait($item);
-			if($this->maxLag !== null && $subscriber->getSendQueueSize() > $this->maxLag) {
+			if ($this->maxLag !== null && $subscriber->getSendQueueSize() > $this->maxLag) {
 				throw new RuntimeException("A subscriber has been lagging for $this->maxLag items. Forgot to call \$traverser->interrupt()?");
 			}
 		}
@@ -81,28 +84,31 @@ final class PubSub{
 	 *
 	 * @return Traverser<T>
 	 */
-	public function subscribe() : Traverser{
+	public function subscribe() : Traverser
+	{
 		$channel = new Channel;
 
-		return Traverser::fromClosure(function() use($channel){
-			try{
+		return Traverser::fromClosure(function () use ($channel) {
+			try {
 				$this->subscribers[spl_object_id($channel)] = $channel;
 
-				while(true) {
+				while (true) {
 					$item = yield from $channel->receive();
 					yield $item => Traverser::VALUE;
 				}
-			}finally{
+			} finally {
 				unset($this->subscribers[spl_object_id($channel)]);
 			}
 		});
 	}
 
-	public function isEmpty() : bool {
+	public function isEmpty() : bool
+	{
 		return count($this->subscribers) === 0;
 	}
 
-	public function getSubscriberCount() : int {
+	public function getSubscriberCount() : int
+	{
 		return count($this->subscribers);
 	}
 }

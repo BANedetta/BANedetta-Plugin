@@ -22,7 +22,8 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
-interface SqlThread{
+interface SqlThread
+{
 	public const MODE_GENERIC = 0;
 	public const MODE_CHANGE = 1;
 	public const MODE_INSERT = 2;

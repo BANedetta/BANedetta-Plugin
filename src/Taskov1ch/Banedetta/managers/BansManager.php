@@ -129,7 +129,8 @@ class BansManager
 
 				$this->unban($row["banned"]);
 				$this->ban(
-					$row["by"], "console",
+					$row["by"],
+					"console",
 					$this->main->getConfig()->get("messages")["for_sender"]["unconfirmed_ban_reason"]
 				);
 			},

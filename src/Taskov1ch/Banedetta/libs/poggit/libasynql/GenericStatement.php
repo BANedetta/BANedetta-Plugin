@@ -24,7 +24,8 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
 use Taskov1ch\Banedetta\libs\poggit\libasynql\generic\GenericVariable;
 
-interface GenericStatement{
+interface GenericStatement
+{
 	/**
 	 * Returns the dialect this query is intended for.
 	 *

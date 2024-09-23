@@ -36,21 +36,24 @@ use Throwable;
  *
  * @template I
  */
-final class Traverser{
+final class Traverser
+{
 	public const VALUE = "traverse.value";
 	public const MAX_INTERRUPTS = 16;
 
 	/** @var Generator */
 	private $inner;
 
-	public function __construct(Generator $inner){
+	public function __construct(Generator $inner)
+	{
 		$this->inner = $inner;
 	}
 
 	/**
 	 * @phpstan-param Closure(): Generator $closure
 	 */
-	public static function fromClosure(Closure $closure) : self{
+	public static function fromClosure(Closure $closure) : self
+	{
 		return new self($closure());
 	}
 
@@ -62,16 +65,17 @@ final class Traverser{
 	 *
 	 * @param-out I $valueRef
 	 */
-	public function next(mixed &$valueRef) : Generator{
-		while($this->inner->valid()){
+	public function next(mixed &$valueRef) : Generator
+	{
+		while ($this->inner->valid()) {
 			$k = $this->inner->key();
 			$v = $this->inner->current();
 
-			if($v === self::VALUE){
+			if ($v === self::VALUE) {
 				$this->inner->next();
 				$valueRef = $k;
 				return true;
-			}else{
+			} else {
 				// fallback to parent async context
 				$this->inner->send(yield $k => $v);
 			}
@@ -86,9 +90,10 @@ final class Traverser{
 	 *
 	 * @return Generator<mixed, mixed, mixed, list<I>>
 	 */
-	public function collect() : Generator{
+	public function collect() : Generator
+	{
 		$array = [];
-		while(yield from $this->next($value)){
+		while (yield from $this->next($value)) {
 			$array[] = $value;
 		}
 		return $array;
@@ -107,17 +112,18 @@ final class Traverser{
 	 *
 	 * All values iterated during interruption are discarded.
 	 */
-	public function interrupt(Throwable $ex = null, int $attempts = self::MAX_INTERRUPTS) : Generator{
+	public function interrupt(Throwable $ex = null, int $attempts = self::MAX_INTERRUPTS) : Generator
+	{
 		$ex = $ex ?? InterruptException::get();
-		for($i = 0; $i < $attempts; $i++){
-			try{
+		for ($i = 0; $i < $attempts; $i++) {
+			try {
 				$this->inner->throw($ex);
 				$hasMore = yield from $this->next($_);
-				if(!$hasMore){
+				if (!$hasMore) {
 					return null;
 				}
-			}catch(Throwable $caught){
-				if($caught === $ex){
+			} catch (Throwable $caught) {
+				if ($caught === $ex) {
 					$caught = null;
 				}
 				return $caught;
@@ -136,7 +142,8 @@ final class Traverser{
 	 * ```
 	 * Then `$namespace1Traverser` and `$namespace2Traverser` are fully interchangeable wherever type check passes.
 	 */
-	public function asGenerator() : Generator {
+	public function asGenerator() : Generator
+	{
 		return $this->inner;
 	}
 }

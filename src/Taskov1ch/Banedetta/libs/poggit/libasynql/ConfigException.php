@@ -24,8 +24,10 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
 use InvalidArgumentException;
 
-class ConfigException extends InvalidArgumentException{
-	public function __construct(string $message = ""){
+class ConfigException extends InvalidArgumentException
+{
+	public function __construct(string $message = "")
+	{
 		parent::__construct("Config problem: " . $message);
 	}
 }

@@ -26,7 +26,8 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\mysqli;
  * Result field flags returned by MySQL
  * @see https://github.com/google/mysql/blob/master/include/mysql_com.h#L133
  */
-interface MysqlFlags{
+interface MysqlFlags
+{
 	/** Field can't be NULL  */
 	public const NOT_NULL_FLAG = 1 << 0;
 	/** Field is part of a primary key  */

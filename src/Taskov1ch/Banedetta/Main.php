@@ -26,8 +26,6 @@ class Main extends PluginBase
 		$this->bansManager = new BansManager($this);
 		$this->getServer()->getPluginManager()->registerEvents(new EventsListener($this), $this);
 		$this->saveDefaultConfig();
-		// $this->bansManager->ban("1223", "Tester", "hz", "testing");
-		// $this->syncPostsAndBans();
 	}
 
 	private function initVk(): bool

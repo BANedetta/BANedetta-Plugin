@@ -27,7 +27,8 @@ use pocketmine\Server;
 use pocketmine\snooze\SleeperHandlerEntry;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
 
-class SqlThreadPool implements SqlThread{
+class SqlThreadPool implements SqlThread
+{
 
 	private SleeperHandlerEntry $sleeperEntry;
 	/** @var callable */
@@ -48,7 +49,8 @@ class SqlThreadPool implements SqlThread{
 	/**
 	 * @param DataConnectorImpl $dataConnector
 	 */
-	public function setDataConnector(DataConnectorImpl $dataConnector): void {
+	public function setDataConnector(DataConnectorImpl $dataConnector): void
+	{
 		$this->dataConnector = $dataConnector;
 	}
 
@@ -58,8 +60,9 @@ class SqlThreadPool implements SqlThread{
 	 * @param callable $workerFactory create a child worker: <code>function(?Threaded $bufferSend = null, ?Threaded $bufferRecv = null) : {@link BaseSqlThread}{}</code>
 	 * @param int      $workerLimit   the maximum number of workers to create. Workers are created lazily.
 	 */
-	public function __construct(callable $workerFactory, int $workerLimit){
-		$this->sleeperEntry = Server::getInstance()->getTickSleeper()->addNotifier(function() : void{
+	public function __construct(callable $workerFactory, int $workerLimit)
+	{
+		$this->sleeperEntry = Server::getInstance()->getTickSleeper()->addNotifier(function () : void {
 			assert($this->dataConnector instanceof DataConnectorImpl); // otherwise, wtf
 			$this->dataConnector->checkResults();
 		});
@@ -72,44 +75,49 @@ class SqlThreadPool implements SqlThread{
 		$this->addWorker();
 	}
 
-	private function addWorker() : void{
+	private function addWorker() : void
+	{
 		$this->workers[] = ($this->workerFactory)($this->sleeperEntry, $this->bufferSend, $this->bufferRecv);
 	}
 
-	public function join() : void{
-		foreach($this->workers as $worker){
+	public function join() : void
+	{
+		foreach ($this->workers as $worker) {
 			$worker->join();
 		}
 	}
 
-	public function stopRunning() : void{
-		foreach($this->workers as $worker){
+	public function stopRunning() : void
+	{
+		foreach ($this->workers as $worker) {
 			$worker->stopRunning();
 		}
 	}
 
-	public function addQuery(int $queryId, array $modes, array $queries, array $params) : void{
+	public function addQuery(int $queryId, array $modes, array $queries, array $params) : void
+	{
 		$this->bufferSend->scheduleQuery($queryId, $modes, $queries, $params);
 
 		// check if we need to increase worker size
-		foreach($this->workers as $worker){
-			if(!$worker->isBusy()){
+		foreach ($this->workers as $worker) {
+			if (!$worker->isBusy()) {
 				return;
 			}
 		}
-		if(count($this->workers) < $this->workerLimit){
+		if (count($this->workers) < $this->workerLimit) {
 			$this->addWorker();
 		}
 	}
 
-	public function readResults(array &$callbacks, ?int $expectedResults) : void{
-		if($expectedResults === null){
+	public function readResults(array &$callbacks, ?int $expectedResults) : void
+	{
+		if ($expectedResults === null) {
 			$resultsList = $this->bufferRecv->fetchAllResults();
-		}else{
+		} else {
 			$resultsList = $this->bufferRecv->waitForResults($expectedResults);
 		}
-		foreach($resultsList as [$queryId, $results]){
-			if(!isset($callbacks[$queryId])){
+		foreach ($resultsList as [$queryId, $results]) {
+			if (!isset($callbacks[$queryId])) {
 				throw new InvalidArgumentException("Missing handler for query #$queryId");
 			}
 
@@ -118,19 +126,23 @@ class SqlThreadPool implements SqlThread{
 		}
 	}
 
-	public function connCreated() : bool{
+	public function connCreated() : bool
+	{
 		return $this->workers[0]->connCreated();
 	}
 
-	public function hasConnError() : bool{
+	public function hasConnError() : bool
+	{
 		return $this->workers[0]->hasConnError();
 	}
 
-	public function getConnError() : ?string{
+	public function getConnError() : ?string
+	{
 		return $this->workers[0]->getConnError();
 	}
 
-	public function getLoad() : float{
+	public function getLoad() : float
+	{
 		return $this->bufferSend->count() / (float) $this->workerLimit;
 	}
 }

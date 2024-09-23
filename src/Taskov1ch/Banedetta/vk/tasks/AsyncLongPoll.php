@@ -2,10 +2,10 @@
 
 namespace Taskov1ch\Banedetta\vk\tasks;
 
-use Taskov1ch\Banedetta\vk\events\VkEvents;
-use Taskov1ch\Banedetta\vk\tasks\States;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;
+use Taskov1ch\Banedetta\vk\events\VkEvents;
+use Taskov1ch\Banedetta\vk\tasks\States;
 use Taskov1ch\Banedetta\vk\Vk;
 
 class AsyncLongPoll extends AsyncTask

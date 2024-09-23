@@ -32,7 +32,8 @@ use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
 
-abstract class SqlSlaveThread extends Thread implements SqlThread{
+abstract class SqlSlaveThread extends Thread implements SqlThread
+{
 	private SleeperHandlerEntry $sleeperEntry;
 
 	private static $nextSlaveNumber = 0;
@@ -44,14 +45,15 @@ abstract class SqlSlaveThread extends Thread implements SqlThread{
 	protected $connError;
 	protected $busy = false;
 
-	protected function __construct(SleeperHandlerEntry $entry, QuerySendQueue $bufferSend = null, QueryRecvQueue $bufferRecv = null){
+	protected function __construct(SleeperHandlerEntry $entry, QuerySendQueue $bufferSend = null, QueryRecvQueue $bufferRecv = null)
+	{
 		$this->sleeperEntry = $entry;
 
 		$this->slaveNumber = self::$nextSlaveNumber++;
 		$this->bufferSend = $bufferSend ?? new QuerySendQueue();
 		$this->bufferRecv = $bufferRecv ?? new QueryRecvQueue();
 
-		if(!libasynql::isPackaged()){
+		if (!libasynql::isPackaged()) {
 			/** @noinspection PhpUndefinedMethodInspection */
 			/** @noinspection NullPointerExceptionInspection */
 			/** @var ClassLoader $cl */
@@ -61,32 +63,33 @@ abstract class SqlSlaveThread extends Thread implements SqlThread{
 		$this->start(NativeThread::INHERIT_INI);
 	}
 
-	protected function onRun() : void{
+	protected function onRun() : void
+	{
 		$error = $this->createConn($resource);
 		$this->connCreated = true;
 		$this->connError = $error;
 
 		$notifier = $this->sleeperEntry->createNotifier();
 
-		if($error !== null){
+		if ($error !== null) {
 			return;
 		}
 
-		while(true){
+		while (true) {
 			$row = $this->bufferSend->fetchQuery();
-			if(!is_string($row)){
+			if (!is_string($row)) {
 				break;
 			}
 			$this->busy = true;
 			[$queryId, $modes, $queries, $params] = unserialize($row, ["allowed_classes" => true]);
 
-			try{
+			try {
 				$results = [];
-				foreach($queries as $index => $query){
+				foreach ($queries as $index => $query) {
 					$results[] = $this->executeQuery($resource, $modes[$index], $query, $params[$index]);
 				}
 				$this->bufferRecv->publishResult($queryId, $results);
-			}catch(SqlError $error){
+			} catch (SqlError $error) {
 				$this->bufferRecv->publishError($queryId, $error);
 			}
 
@@ -99,33 +102,38 @@ abstract class SqlSlaveThread extends Thread implements SqlThread{
 	/**
 	 * @return bool
 	 */
-	public function isBusy() : bool{
+	public function isBusy() : bool
+	{
 		return $this->busy;
 	}
 
-	public function stopRunning() : void{
+	public function stopRunning() : void
+	{
 		$this->bufferSend->invalidate();
 
 		parent::quit();
 	}
 
-	public function quit() : void{
+	public function quit() : void
+	{
 		$this->stopRunning();
 		parent::quit();
 	}
 
-	public function addQuery(int $queryId, array $modes, array $queries, array $params) : void{
+	public function addQuery(int $queryId, array $modes, array $queries, array $params) : void
+	{
 		$this->bufferSend->scheduleQuery($queryId, $modes, $queries, $params);
 	}
 
-	public function readResults(array &$callbacks, ?int $expectedResults) : void{
-		if($expectedResults === null){
+	public function readResults(array &$callbacks, ?int $expectedResults) : void
+	{
+		if ($expectedResults === null) {
 			$resultsList = $this->bufferRecv->fetchAllResults();
-		}else{
+		} else {
 			$resultsList = $this->bufferRecv->waitForResults($expectedResults);
 		}
-		foreach($resultsList as [$queryId, $results]){
-			if(!isset($callbacks[$queryId])){
+		foreach ($resultsList as [$queryId, $results]) {
+			if (!isset($callbacks[$queryId])) {
 				throw new InvalidArgumentException("Missing handler for query #$queryId");
 			}
 
@@ -134,19 +142,22 @@ abstract class SqlSlaveThread extends Thread implements SqlThread{
 		}
 	}
 
-	public function connCreated() : bool{
+	public function connCreated() : bool
+	{
 		return $this->connCreated;
 	}
 
-	public function hasConnError() : bool{
+	public function hasConnError() : bool
+	{
 		return $this->connError !== null;
 	}
 
-	public function getConnError() : ?string{
+	public function getConnError() : ?string
+	{
 		return $this->connError;
 	}
 
-	protected abstract function createConn(&$resource) : ?string;
+	abstract protected function createConn(&$resource) : ?string;
 
 	/**
 	 * @param mixed   $resource
@@ -157,8 +168,7 @@ abstract class SqlSlaveThread extends Thread implements SqlThread{
 	 * @return SqlResult
 	 * @throws SqlError
 	 */
-	protected abstract function executeQuery($resource, int $mode, string $query, array $params) : SqlResult;
+	abstract protected function executeQuery($resource, int $mode, string $query, array $params) : SqlResult;
 
-
-	protected abstract function close(&$resource) : void;
+	abstract protected function close(&$resource) : void;
 }
