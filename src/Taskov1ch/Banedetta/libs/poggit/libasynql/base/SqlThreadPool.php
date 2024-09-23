@@ -30,19 +30,31 @@ use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
 class SqlThreadPool implements SqlThread
 {
 	private SleeperHandlerEntry $sleeperEntry;
-	/** @var callable */
+	/**
+	 * @var callable
+	 */
 	private $workerFactory;
-	/** @var SqlSlaveThread[] */
+	/**
+	 * @var SqlSlaveThread[]
+	 */
 	private $workers = [];
-	/** @var int */
+	/**
+	 * @var int
+	 */
 	private $workerLimit;
 
-	/** @var QuerySendQueue */
+	/**
+	 * @var QuerySendQueue
+	 */
 	private $bufferSend;
-	/** @var QueryRecvQueue */
+	/**
+	 * @var QueryRecvQueue
+	 */
 	private $bufferRecv;
 
-	/** @var DataConnectorImpl|null */
+	/**
+	 * @var DataConnectorImpl|null
+	 */
 	private $dataConnector = null;
 
 	/**
@@ -61,10 +73,12 @@ class SqlThreadPool implements SqlThread
 	 */
 	public function __construct(callable $workerFactory, int $workerLimit)
 	{
-		$this->sleeperEntry = Server::getInstance()->getTickSleeper()->addNotifier(function (): void {
-			assert($this->dataConnector instanceof DataConnectorImpl); // otherwise, wtf
-			$this->dataConnector->checkResults();
-		});
+		$this->sleeperEntry = Server::getInstance()->getTickSleeper()->addNotifier(
+			function (): void {
+				assert($this->dataConnector instanceof DataConnectorImpl); // otherwise, wtf
+				$this->dataConnector->checkResults();
+			}
+		);
 
 		$this->workerFactory = $workerFactory;
 		$this->workerLimit = $workerLimit;

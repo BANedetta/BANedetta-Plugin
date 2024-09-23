@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
-use InvalidArgumentException;
 use Generator;
+use InvalidArgumentException;
 use Logger;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\generic\GenericStatementFileParseException;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlColumnInfo;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator\Await;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlColumnInfo;
 
 /**
  * Represents a database connection or a group of database connections
@@ -99,8 +99,8 @@ interface DataConnector
 	 *
 	 * This is the await-generator variant. Non await-generator users should not use this function.
 	 *
-	 * @param string  $queryName the {@link GenericPreparedStatement} query name
-	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
+	 * @param  string  $queryName the {@link GenericPreparedStatement} query name
+	 * @param  mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, null>
 	 */
 	public function asyncGeneric(string $queryName, array $args = []): Generator;
@@ -125,8 +125,8 @@ interface DataConnector
 	 *
 	 * The generator returns the number of affected rows.
 	 *
-	 * @param string  $queryName the {@link GenericPreparedStatement} query name
-	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
+	 * @param  string  $queryName the {@link GenericPreparedStatement} query name
+	 * @param  mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, int>
 	 */
 	public function asyncChange(string $queryName, array $args = []): Generator;
@@ -159,14 +159,14 @@ interface DataConnector
 	 * [$insertId, $affectedRows] = yield from $connector->asyncChange(Queries::QUERY_NAME, $some, $arguments);
 	 * ```
 	 *
-	 * @param string  $queryName the {@link GenericPreparedStatement} query name
-	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
+	 * @param  string  $queryName the {@link GenericPreparedStatement} query name
+	 * @param  mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, array{int, int}>
 	 */
 	public function asyncInsert(string $queryName, array $args = []): Generator;
 
 	/**
-	 * Executes a select query that returns an SQL result set. This does not strictly need to be SELECT queries -- reflection queries like MySQL's <code>SHOW TABLES</code> query are also allowed.
+	 * Executes a select query that returns an SQL result set. This does not strictly need to be SELECT queries -- reflection queries like MySQL"s <code>SHOW TABLES</code> query are also allowed.
 	 *
 	 * If multiple delimited queries exist in the query, they will be executed in order, but only the last result will be returned.
 	 * The last statement must be a select query (or e.g. <code>SHOW TABLES</code> queries).
@@ -189,14 +189,14 @@ interface DataConnector
 	public function executeMulti(string $queryName, array $args, int $mode, ?callable $handler = null, ?callable $onError = null): void;
 
 	/**
-	 * @param string[] $queries
+	 * @param string[]  $queries
 	 * @param mixed[][] $args
-	 * @param int[] $modes
+	 * @param int[]     $modes
 	 */
 	public function executeImplRaw(array $queries, array $args, array $modes, callable $handler, ?callable $onError): void;
 
 	/**
-	 * Executes a select query that returns an SQL result set. This does not strictly need to be SELECT queries -- reflection queries like MySQL's <code>SHOW TABLES</code> query are also allowed.
+	 * Executes a select query that returns an SQL result set. This does not strictly need to be SELECT queries -- reflection queries like MySQL"s <code>SHOW TABLES</code> query are also allowed.
 	 *
 	 * This function is the await-generator variant. Non await-generator users should not use this function.
 	 *
@@ -204,8 +204,8 @@ interface DataConnector
 	 *
 	 * If {@link SqlColumnInfo} is needed, use `asyncSelectWithInfo` instead.
 	 *
-	 * @param string  $queryName the {@link GenericPreparedStatement} query name
-	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
+	 * @param  string  $queryName the {@link GenericPreparedStatement} query name
+	 * @param  mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, array[] $rows>
 	 */
 	public function asyncSelect(string $queryName, array $args = []): Generator;
@@ -223,8 +223,8 @@ interface DataConnector
 	 * [$rows, $info] = yield from $connector->asyncSelectWithInfo(Queries::QUERY_NAME, $some, $arguments);
 	 * ```
 	 *
-	 * @param string  $queryName the {@link GenericPreparedStatement} query name
-	 * @param mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
+	 * @param  string  $queryName the {@link GenericPreparedStatement} query name
+	 * @param  mixed[] $args      the variables as defined in the {@link GenericPreparedStatement}
 	 * @return Generator<mixed, Await::RESOLVE|Await::REJECT, mixed, array{array[], SqlColumnInfo[]}>
 	 */
 	public function asyncSelectWithInfo(string $queryName, array $args = []): Generator;

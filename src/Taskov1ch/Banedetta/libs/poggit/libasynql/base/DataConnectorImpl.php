@@ -22,51 +22,68 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\base;
 
-use Error;
-use Exception;
-use Generator;
-use InvalidArgumentException;
-use Logger;
-use pocketmine\plugin\Plugin;
-use pocketmine\utils\Terminal;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\DataConnector;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\generic\GenericStatementFileParser;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\libasynql;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlChangeResult;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlColumnInfo;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlInsertResult;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlSelectResult;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
-use ReflectionClass;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator\Await;
-use TypeError;
-
 use function array_fill;
 use function array_merge;
 use function array_pop;
 use function count;
+
+use Error;
+use Exception;
+use Generator;
+use InvalidArgumentException;
+
 use function is_resource;
 use function json_encode;
+
+use Logger;
+use pocketmine\plugin\Plugin;
+use pocketmine\utils\Terminal;
+use ReflectionClass;
+
 use function str_replace;
-use function usleep;
+
+use Taskov1ch\Banedetta\libs\poggit\libasynql\DataConnector;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\generic\GenericStatementFileParser;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\libasynql;
+
+use Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator\Await;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlChangeResult;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlInsertResult;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlSelectResult;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
+use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
+use TypeError;
 
 class DataConnectorImpl implements DataConnector
 {
-	/** @var Plugin */
+	/**
+	 * @var Plugin
+	 */
 	private $plugin;
-	/** @var SqlThread */
+	/**
+	 * @var SqlThread
+	 */
 	private $thread;
-	/** @var Logger|null */
+	/**
+	 * @var Logger|null
+	 */
 	private $logger;
-	/** @var GenericStatement[] */
+	/**
+	 * @var GenericStatement[]
+	 */
 	private $queries = [];
-	/** @var callable[] */
+	/**
+	 * @var callable[]
+	 */
 	private $handlers = [];
-	/** @var int */
+	/**
+	 * @var int
+	 */
 	private $queryId = 0;
-	/** @var string|null */
+	/**
+	 * @var string|null
+	 */
 	private $placeHolder;
 
 	/**
@@ -129,11 +146,17 @@ class DataConnectorImpl implements DataConnector
 
 	public function executeGeneric(string $queryName, array $args = [], ?callable $onSuccess = null, ?callable $onError = null): void
 	{
-		$this->executeImplLast($queryName, $args, SqlThread::MODE_GENERIC, static function () use ($onSuccess) {
-			if ($onSuccess !== null) {
-				$onSuccess();
-			}
-		}, $onError);
+		$this->executeImplLast(
+			$queryName,
+			$args,
+			SqlThread::MODE_GENERIC,
+			static function () use ($onSuccess) {
+				if ($onSuccess !== null) {
+					$onSuccess();
+				}
+			},
+			$onError
+		);
 	}
 
 	public function asyncGeneric(string $queryName, array $args = []): Generator
@@ -147,11 +170,17 @@ class DataConnectorImpl implements DataConnector
 
 	public function executeChange(string $queryName, array $args = [], ?callable $onSuccess = null, ?callable $onError = null): void
 	{
-		$this->executeImplLast($queryName, $args, SqlThread::MODE_CHANGE, static function (SqlChangeResult $result) use ($onSuccess) {
-			if ($onSuccess !== null) {
-				$onSuccess($result->getAffectedRows());
-			}
-		}, $onError);
+		$this->executeImplLast(
+			$queryName,
+			$args,
+			SqlThread::MODE_CHANGE,
+			static function (SqlChangeResult $result) use ($onSuccess) {
+				if ($onSuccess !== null) {
+					$onSuccess($result->getAffectedRows());
+				}
+			},
+			$onError
+		);
 	}
 
 	public function asyncChange(string $queryName, array $args = []): Generator
@@ -165,56 +194,90 @@ class DataConnectorImpl implements DataConnector
 
 	public function executeInsert(string $queryName, array $args = [], ?callable $onInserted = null, ?callable $onError = null): void
 	{
-		$this->executeImplLast($queryName, $args, SqlThread::MODE_INSERT, static function (SqlInsertResult $result) use ($onInserted) {
-			if ($onInserted !== null) {
-				$onInserted($result->getInsertId(), $result->getAffectedRows());
-			}
-		}, $onError);
+		$this->executeImplLast(
+			$queryName,
+			$args,
+			SqlThread::MODE_INSERT,
+			static function (SqlInsertResult $result) use ($onInserted) {
+				if ($onInserted !== null) {
+					$onInserted($result->getInsertId(), $result->getAffectedRows());
+				}
+			},
+			$onError
+		);
 	}
 
 	public function asyncInsert(string $queryName, array $args = []): Generator
 	{
 		$onSuccess = yield Await::RESOLVE;
 		$onError = yield Await::REJECT;
-		$this->executeInsert($queryName, $args, static function (int $insertId, int $affectedRows) use ($onSuccess): void {
-			$onSuccess([$insertId, $affectedRows]);
-		}, $onError);
+		$this->executeInsert(
+			$queryName,
+			$args,
+			static function (int $insertId, int $affectedRows) use ($onSuccess): void {
+				$onSuccess([$insertId, $affectedRows]);
+			},
+			$onError
+		);
 		$affectedRows = yield Await::ONCE;
 		return $affectedRows;
 	}
 
 	public function executeSelect(string $queryName, array $args = [], ?callable $onSelect = null, ?callable $onError = null): void
 	{
-		$this->executeImplLast($queryName, $args, SqlThread::MODE_SELECT, static function (SqlSelectResult $result) use ($onSelect) {
-			if ($onSelect !== null) {
-				$onSelect($result->getRows(), $result->getColumnInfo());
-			}
-		}, $onError);
+		$this->executeImplLast(
+			$queryName,
+			$args,
+			SqlThread::MODE_SELECT,
+			static function (SqlSelectResult $result) use ($onSelect) {
+				if ($onSelect !== null) {
+					$onSelect($result->getRows(), $result->getColumnInfo());
+				}
+			},
+			$onError
+		);
 	}
 
 	private function executeImplLast(string $queryName, array $args, int $mode, callable $handler, ?callable $onError): void
 	{
-		$this->executeImpl($queryName, $args, $mode, static function ($results) use ($handler) {
-			$handler($results[count($results) - 1]);
-		}, $onError);
+		$this->executeImpl(
+			$queryName,
+			$args,
+			$mode,
+			static function ($results) use ($handler) {
+				$handler($results[count($results) - 1]);
+			},
+			$onError
+		);
 	}
 
 	public function executeMulti(string $queryName, array $args, int $mode, ?callable $handler = null, ?callable $onError = null): void
 	{
-		$this->executeImpl($queryName, $args, $mode, static function ($results) use ($handler) {
-			if ($handler !== null) {
-				$handler($results);
-			}
-		}, $onError);
+		$this->executeImpl(
+			$queryName,
+			$args,
+			$mode,
+			static function ($results) use ($handler) {
+				if ($handler !== null) {
+					$handler($results);
+				}
+			},
+			$onError
+		);
 	}
 
 	public function asyncSelect(string $queryName, array $args = []): Generator
 	{
 		$onSuccess = yield Await::RESOLVE;
 		$onError = yield Await::REJECT;
-		$this->executeSelect($queryName, $args, static function (array $rows, array $columns) use ($onSuccess): void {
-			$onSuccess($rows);
-		}, $onError);
+		$this->executeSelect(
+			$queryName,
+			$args,
+			static function (array $rows, array $columns) use ($onSuccess): void {
+				$onSuccess($rows);
+			},
+			$onError
+		);
 		$rows = yield Await::ONCE;
 		return $rows;
 	}
@@ -223,9 +286,14 @@ class DataConnectorImpl implements DataConnector
 	{
 		$onSuccess = yield Await::RESOLVE;
 		$onError = yield Await::REJECT;
-		$this->executeSelect($queryName, $args, static function (array $rows, array $columns) use ($onSuccess): void {
-			$onSuccess([$rows, $columns]);
-		}, $onError);
+		$this->executeSelect(
+			$queryName,
+			$args,
+			static function (array $rows, array $columns) use ($onSuccess): void {
+				$onSuccess([$rows, $columns]);
+			},
+			$onError
+		);
 		$rows = yield Await::ONCE;
 		return $rows;
 	}
@@ -245,9 +313,9 @@ class DataConnectorImpl implements DataConnector
 	}
 
 	/**
-	 * @param string[] $queries
+	 * @param string[]  $queries
 	 * @param mixed[][] $args
-	 * @param int[] $modes
+	 * @param int[]     $modes
 	 */
 	public function executeImplRaw(array $queries, array $args, array $modes, callable $handler, ?callable $onError): void
 	{
@@ -268,12 +336,21 @@ class DataConnectorImpl implements DataConnector
 						for ($i = count($newTrace) - 1, $j = count($oldTrace) - 1; $i >= 0 && $j >= 0 && $newTrace[$i] === $oldTrace[$j]; --$i, --$j) {
 							array_pop($newTrace);
 						}
-						/** @noinspection PhpUndefinedMethodInspection */
-						$prop->setValue($e, array_merge($newTrace, [
-							[
+						/**
+				* @noinspection PhpUndefinedMethodInspection
+*/
+						$prop->setValue(
+							$e,
+							array_merge(
+								$newTrace,
+								[
+								[
 								"function" => Terminal::$COLOR_YELLOW . "--- below is the original stack trace ---" . Terminal::$FORMAT_RESET,
-							],
-						], $oldTrace));
+								],
+								],
+								$oldTrace
+							)
+						);
 					}
 					throw $e;
 				} catch (Error $e) {
@@ -289,12 +366,21 @@ class DataConnectorImpl implements DataConnector
 						for ($i = count($newTrace) - 1, $j = count($oldTrace) - 1; $i >= 0 && $j >= 0 && $newTrace[$i] === $oldTrace[$j]; --$i, --$j) {
 							array_pop($newTrace);
 						}
-						/** @noinspection PhpUndefinedMethodInspection */
-						$errorProperty->setValue($e, array_merge($newTrace, [
-							[
+						/**
+				* @noinspection PhpUndefinedMethodInspection
+*/
+						$errorProperty->setValue(
+							$e,
+							array_merge(
+								$newTrace,
+								[
+								[
 								"function" => Terminal::$COLOR_YELLOW . "--- below is the original stack trace ---" . Terminal::$FORMAT_RESET,
-							],
-						], $oldTrace));
+								],
+								],
+								$oldTrace
+							)
+						);
 					}
 					throw $e;
 				}

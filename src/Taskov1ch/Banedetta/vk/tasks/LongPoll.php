@@ -2,8 +2,8 @@
 
 namespace Taskov1ch\Banedetta\vk\tasks;
 
-use pocketmine\Server;
 use pocketmine\scheduler\Task;
+use pocketmine\Server;
 
 class LongPoll extends Task
 {

@@ -24,6 +24,7 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\mysqli;
 
 /**
  * Result field types returned by MySQL
+ *
  * @see https://dev.mysql.com/doc/internals/en/com-query-response.html#column-type
  */
 interface MysqlTypes

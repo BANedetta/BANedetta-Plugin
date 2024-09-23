@@ -28,6 +28,8 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator;
  */
 final class ReceivingChannelState
 {
-	/** @var list<Closure(T): void> */
+	/**
+	 * @var list<Closure(T): void>
+	 */
 	public array $queue = [];
 }

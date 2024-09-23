@@ -26,11 +26,14 @@ use RuntimeException;
 
 /**
  * A pubsub allows coroutines to publish a message that is received by all subscribres.
+ *
  * @template T
  */
 final class PubSub
 {
-	/** @var Channel<T>[] */
+	/**
+	 * @var Channel<T>[]
+	 */
 	private array $subscribers = [];
 
 	/**
@@ -74,9 +77,9 @@ final class PubSub
 	 * ```
 	 * $sub = $pubsub->subscribe();
 	 * try {
-	 *	   while($sub->next($item)) {
-	 *	       // do something with $item
-	 *	   }
+	 *       while($sub->next($item)) {
+	 *           // do something with $item
+	 *       }
 	 * } finally {
 	 *     yield from $sub->interrupt();
 	 * }
@@ -88,18 +91,20 @@ final class PubSub
 	{
 		$channel = new Channel();
 
-		return Traverser::fromClosure(function () use ($channel) {
-			try {
-				$this->subscribers[spl_object_id($channel)] = $channel;
+		return Traverser::fromClosure(
+			function () use ($channel) {
+				try {
+					$this->subscribers[spl_object_id($channel)] = $channel;
 
-				while (true) {
-					$item = yield from $channel->receive();
-					yield $item => Traverser::VALUE;
+					while (true) {
+						$item = yield from $channel->receive();
+						yield $item => Traverser::VALUE;
+					}
+				} finally {
+					unset($this->subscribers[spl_object_id($channel)]);
 				}
-			} finally {
-				unset($this->subscribers[spl_object_id($channel)]);
 			}
-		});
+		);
 	}
 
 	public function isEmpty(): bool

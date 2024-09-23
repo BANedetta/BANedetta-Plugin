@@ -2,9 +2,9 @@
 
 namespace Taskov1ch\Banedetta\vk\managers;
 
-use Taskov1ch\Banedetta\vk\VkListener;
-use Taskov1ch\Banedetta\vk\events\VkEvent;
 use pocketmine\plugin\Plugin;
+use Taskov1ch\Banedetta\vk\events\VkEvent;
+use Taskov1ch\Banedetta\vk\VkListener;
 
 class EventsManager
 {

@@ -47,7 +47,9 @@ final class Mutex
 {
 	private bool $acquired = false;
 
-	/** @var list<Closure(): void> */
+	/**
+	 * @var list<Closure(): void>
+	 */
 	private array $queue = [];
 
 	/**
@@ -100,8 +102,8 @@ final class Mutex
 
 	/**
 	 * @template T
-	 * @param Closure(): Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T> $generatorClosure
-	 * @return Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T>
+	 * @param    Closure(): Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T> $generatorClosure
+	 * @return   Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T>
 	 */
 	public function runClosure(Closure $generatorClosure): Generator
 	{
@@ -110,8 +112,8 @@ final class Mutex
 
 	/**
 	 * @template T
-	 * @param Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T> $generator
-	 * @return Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T>
+	 * @param    Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T> $generator
+	 * @return   Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T>
 	 */
 	public function run(Generator $generator): Generator
 	{

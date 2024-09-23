@@ -22,13 +22,38 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\mysqli;
 
+use function array_map;
+use function assert;
+use function bccomp;
+use function bcsub;
+
 use Closure;
+
+use function count;
+use function gettype;
+use function implode;
+use function in_array;
+
 use InvalidArgumentException;
+
+use function is_float;
+use function is_int;
+use function is_string;
+use function min;
+
 use mysqli;
 use mysqli_result;
 use mysqli_sql_exception;
+
+use const PHP_INT_MAX;
+
 use pocketmine\snooze\SleeperHandlerEntry;
 use pocketmine\thread\log\AttachableThreadSafeLogger;
+
+use function serialize;
+use function sleep;
+use function strtotime;
+
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\QueryRecvQueue;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\QuerySendQueue;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\SqlSlaveThread;
@@ -40,30 +65,17 @@ use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
 
-use function array_map;
-use function assert;
-use function bccomp;
-use function bcsub;
-use function count;
-use function gettype;
-use function implode;
-use function in_array;
-use function is_float;
-use function is_int;
-use function is_string;
-use function min;
-use function serialize;
-use function sleep;
-use function strtotime;
 use function unserialize;
-
-use const PHP_INT_MAX;
 
 class MysqliThread extends SqlSlaveThread
 {
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	private $credentials;
-	/** @var AttachableThreadSafeLogger */
+	/**
+	 * @var AttachableThreadSafeLogger
+	 */
 	private $logger;
 
 	public static function createFactory(MysqlCredentials $credentials, AttachableThreadSafeLogger $logger): Closure
@@ -83,7 +95,9 @@ class MysqliThread extends SqlSlaveThread
 
 	protected function createConn(&$mysqli): ?string
 	{
-		/** @var MysqlCredentials $cred */
+		/**
+	* @var MysqlCredentials $cred
+*/
 		$cred = unserialize($this->credentials);
 		try {
 			$mysqli = $cred->newMysqli();
@@ -113,7 +127,9 @@ class MysqliThread extends SqlSlaveThread
 	protected function executeQuery($mysqli, int $mode, string $query, array $params): SqlResult
 	{
 		assert($mysqli instanceof mysqli);
-		/** @var MysqlCredentials $cred */
+		/**
+	* @var MysqlCredentials $cred
+*/
 		$cred = unserialize($this->credentials);
 		$ping = false;
 
@@ -176,18 +192,23 @@ class MysqliThread extends SqlSlaveThread
 				fn () => throw new SqlError(SqlError::STAGE_PREPARE, $mysqli->error, $query, $params)
 			);
 
-			$types = implode(array_map(static function ($param) use ($query, $params) {
-				if (is_string($param)) {
-					return "s";
-				}
-				if (is_float($param)) {
-					return "d";
-				}
-				if (is_int($param)) {
-					return "i";
-				}
-				throw new SqlError(SqlError::STAGE_PREPARE, "Cannot bind value of type " . gettype($param), $query, $params);
-			}, $params));
+			$types = implode(
+				array_map(
+					static function ($param) use ($query, $params) {
+						if (is_string($param)) {
+							return "s";
+						}
+						if (is_float($param)) {
+							return "d";
+						}
+						if (is_int($param)) {
+							return "i";
+						}
+						throw new SqlError(SqlError::STAGE_PREPARE, "Cannot bind value of type " . gettype($param), $query, $params);
+					},
+					$params
+				)
+			);
 			$stmt->bind_param($types, ...$params);
 			try {
 				$stmt->execute();
@@ -262,11 +283,16 @@ class MysqliThread extends SqlSlaveThread
 				};
 			} elseif ($field->type === MysqlTypes::NULL) {
 				$type = SqlColumnInfo::TYPE_NULL;
-			} elseif (in_array($field->type, [
+			} elseif (in_array(
+				$field->type,
+				[
 				MysqlTypes::VARCHAR,
 				MysqlTypes::STRING,
 				MysqlTypes::VAR_STRING,
-			], true)) {
+				],
+				true
+			)
+			) {
 				$type = SqlColumnInfo::TYPE_STRING;
 			} elseif (in_array($field->type, [MysqlTypes::FLOAT, MysqlTypes::DOUBLE, MysqlTypes::DECIMAL, MysqlTypes::NEWDECIMAL], true)) {
 				$type = SqlColumnInfo::TYPE_FLOAT;

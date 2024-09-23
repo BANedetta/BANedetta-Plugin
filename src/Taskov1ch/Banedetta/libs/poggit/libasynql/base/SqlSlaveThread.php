@@ -54,9 +54,15 @@ abstract class SqlSlaveThread extends Thread implements SqlThread
 		$this->bufferRecv = $bufferRecv ?? new QueryRecvQueue();
 
 		if (!libasynql::isPackaged()) {
-			/** @noinspection PhpUndefinedMethodInspection */
-			/** @noinspection NullPointerExceptionInspection */
-			/** @var ClassLoader $cl */
+			/**
+	   * @noinspection PhpUndefinedMethodInspection
+*/
+			/**
+	   * @noinspection NullPointerExceptionInspection
+*/
+			/**
+	   * @var ClassLoader $cl
+*/
 			$cl = Server::getInstance()->getPluginManager()->getPlugin("DEVirion")->getVirionClassLoader();
 			$this->setClassLoaders([Server::getInstance()->getLoader(), $cl]);
 		}

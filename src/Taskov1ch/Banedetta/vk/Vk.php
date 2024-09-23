@@ -48,10 +48,13 @@ class Vk
 
 	public function initLongPoll(): void
 	{
-		$this->main->getScheduler()->scheduleRepeatingTask(new LongPoll(
-			$this->data["token"],
-			$this->data["group_id"]
-		), 1);
+		$this->main->getScheduler()->scheduleRepeatingTask(
+			new LongPoll(
+				$this->data["token"],
+				$this->data["group_id"]
+			),
+			1
+		);
 		EventsManager::getInstance()->registerEvents(new VkEventsListener($this->main), $this->main);
 	}
 
@@ -68,16 +71,16 @@ class Vk
 		?int $postId = null
 	): string {
 		$params = [
-			"access_token" => $this->data["token"],
-			"v" => 5.199,
-			"owner_id" => -$this->data["group_id"],
-			"from_group" => 1,
-			"attachments" => $this->data["posts"][$type]["attachment"],
-			"message" => str_replace(
-				["{nickname}", "{reason}", "{by}"],
-				[$nickname, $reason, $by],
-				$this->data["posts"][$type]["message"]
-			)
+		"access_token" => $this->data["token"],
+		"v" => 5.199,
+		"owner_id" => -$this->data["group_id"],
+		"from_group" => 1,
+		"attachments" => $this->data["posts"][$type]["attachment"],
+		"message" => str_replace(
+			["{nickname}", "{reason}", "{by}"],
+			[$nickname, $reason, $by],
+			$this->data["posts"][$type]["message"]
+		)
 		];
 		if ($postId) {
 			$params["post_id"] = $postId;

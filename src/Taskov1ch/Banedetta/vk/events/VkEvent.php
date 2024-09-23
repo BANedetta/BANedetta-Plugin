@@ -2,8 +2,8 @@
 
 namespace Taskov1ch\Banedetta\vk\events;
 
-use Taskov1ch\Banedetta\vk\managers\EventsManager;
 use pocketmine\Server;
+use Taskov1ch\Banedetta\vk\managers\EventsManager;
 
 abstract class VkEvent
 {

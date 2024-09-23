@@ -25,26 +25,42 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\mysqli;
 use JsonSerializable;
 use mysqli;
 use mysqli_sql_exception;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\ConfigException;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
 
 use function strlen;
 
+use Taskov1ch\Banedetta\libs\poggit\libasynql\ConfigException;
+
+use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
+
 class MysqlCredentials implements JsonSerializable
 {
-	/** @var string $host */
+	/**
+	 * @var string $host
+	 */
 	private $host;
-	/** @var string $username */
+	/**
+	 * @var string $username
+	 */
 	private $username;
-	/** @var string $password */
+	/**
+	 * @var string $password
+	 */
 	private $password;
-	/** @var string $schema */
+	/**
+	 * @var string $schema
+	 */
 	private $schema;
-	/** @var int $port */
+	/**
+	 * @var int $port
+	 */
 	private $port;
-	/** @var string $socket */
+	/**
+	 * @var string $socket
+	 */
 	private $socket;
-	/** @var MysqlSslCredentials|null */
+	/**
+	 * @var MysqlSslCredentials|null
+	 */
 	private $sslCredentials;
 
 	/**
@@ -58,15 +74,15 @@ class MysqlCredentials implements JsonSerializable
 	 * socket: ""
 	 * </pre>
 	 *
-	 * @param array       $array
-	 * @param string|null $defaultSchema default null
+	 * @param  array       $array
+	 * @param  string|null $defaultSchema default null
 	 * @return MysqlCredentials
 	 * @throws ConfigException If <code>schema</code> is missing and <code>$defaultSchema</code> is null/not passed
 	 */
 	public static function fromArray(array $array, ?string $defaultSchema = null): MysqlCredentials
 	{
 		if (!isset($defaultSchema, $array["schema"])) {
-			throw new ConfigException("The attribute \"schema\" is missing in the MySQL settings");
+			throw new ConfigException("The attribute "schema" is missing in the MySQL settings");
 		}
 		return new MysqlCredentials(
 			$array["host"] ?? "127.0.0.1",
@@ -82,12 +98,12 @@ class MysqlCredentials implements JsonSerializable
 	/**
 	 * Constructs a new {@link MysqlCredentials} by passing parameters directly.
 	 *
-	 * @param string $host
-	 * @param string $username
-	 * @param string $password
-	 * @param string $schema
-	 * @param int    $port
-	 * @param string $socket
+	 * @param string                   $host
+	 * @param string                   $username
+	 * @param string                   $password
+	 * @param string                   $schema
+	 * @param int                      $port
+	 * @param string                   $socket
 	 * @param MysqlSslCredentials|null $sslCredentials
 	 */
 	public function __construct(string $host, string $username, string $password, string $schema, int $port = 3306, string $socket = "", ?MysqlSslCredentials $sslCredentials = null)
@@ -124,7 +140,7 @@ class MysqlCredentials implements JsonSerializable
 			}
 		} catch (mysqli_sql_exception $e) {
 			//TODO HACK! extensive testing showed that both ways of error handling are acceptable.
-			// maybe it depends on php build, or OS type? I don't really know. Testing it on windows
+			// maybe it depends on php build, or OS type? I don"t really know. Testing it on windows
 			// shows that mysqli_real_connect throws mysqli exception if it is a first connection.
 			// Exception is being thrown before we could actually check connect_error
 			// so we are forced to catch mysqli_sql_exception
@@ -168,33 +184,33 @@ class MysqlCredentials implements JsonSerializable
 	}
 
 	/**
-	 * Prepares value to be var_dump()'ed without leaking password
+	 * Prepares value to be var_dump()"ed without leaking password
 	 *
 	 * @return array
 	 */
 	public function __debugInfo()
 	{
 		return [
-			"host" => $this->host,
-			"username" => $this->username,
-			"password" => str_repeat("*", strlen($this->password)),
-			"schema" => $this->schema,
-			"port" => $this->port,
-			"socket" => $this->socket,
-			"sslCredentials" => $this->sslCredentials,
+		"host" => $this->host,
+		"username" => $this->username,
+		"password" => str_repeat("*", strlen($this->password)),
+		"schema" => $this->schema,
+		"port" => $this->port,
+		"socket" => $this->socket,
+		"sslCredentials" => $this->sslCredentials,
 		];
 	}
 
 	public function jsonSerialize(): array
 	{
 		return [
-			"host" => $this->host,
-			"username" => $this->username,
-			"password" => $this->password,
-			"schema" => $this->schema,
-			"port" => $this->port,
-			"socket" => $this->socket,
-			"sslCredentials" => $this->sslCredentials,
+		"host" => $this->host,
+		"username" => $this->username,
+		"password" => $this->password,
+		"schema" => $this->schema,
+		"port" => $this->port,
+		"socket" => $this->socket,
+		"sslCredentials" => $this->sslCredentials,
 		];
 	}
 }

@@ -41,7 +41,9 @@ final class Traverser
 	public const VALUE = "traverse.value";
 	public const MAX_INTERRUPTS = 16;
 
-	/** @var Generator */
+	/**
+	 * @var Generator
+	 */
 	private $inner;
 
 	public function __construct(Generator $inner)

@@ -24,15 +24,18 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql;
 
 use Closure;
 use Exception;
-use ReflectionClass;
-use ReflectionFunction;
-use RuntimeException;
 
 use function get_class;
 use function get_resource_type;
 use function is_object;
+
 use function is_resource;
 use function json_encode;
+
+use ReflectionClass;
+use ReflectionFunction;
+use RuntimeException;
+
 use function sprintf;
 
 /**
@@ -120,26 +123,26 @@ class SqlError extends RuntimeException
 	 */
 	protected function flattenTrace(): void
 	{
-		$traceProperty = (new ReflectionClass(Exception::class))->getProperty('trace');
+		$traceProperty = (new ReflectionClass(Exception::class))->getProperty("trace");
 		$traceProperty->setAccessible(true);
 		$flatten = static function (&$value) {
 			if ($value instanceof Closure) {
 				$closureReflection = new ReflectionFunction($value);
 				$value = sprintf(
-					'(Closure at %s:%s)',
+					"(Closure at %s:%s)",
 					$closureReflection->getFileName(),
 					$closureReflection->getStartLine()
 				);
 			} elseif (is_object($value)) {
-				$value = sprintf('object(%s)', get_class($value));
+				$value = sprintf("object(%s)", get_class($value));
 			} elseif (is_resource($value)) {
-				$value = sprintf('resource(%s)', get_resource_type($value));
+				$value = sprintf("resource(%s)", get_resource_type($value));
 			}
 		};
 		do {
 			$trace = $traceProperty->getValue($this);
 			foreach ($trace as &$call) {
-				array_walk_recursive($call['args'], $flatten);
+				array_walk_recursive($call["args"], $flatten);
 			}
 			unset($call);
 			$traceProperty->setValue($this, $trace);

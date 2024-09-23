@@ -18,10 +18,14 @@ class BansManager
 
 	public function __construct(private readonly Main $main)
 	{
-		$this->db = libasynql::create($main, $main->getConfig()->get("databases"), [
+		$this->db = libasynql::create(
+			$main,
+			$main->getConfig()->get("databases"),
+			[
 			"mysql" => "database/mysql.sql",
 			"sqlite" => "database/sqlite.sql"
-		]);
+			]
+		);
 		$this->db->executeGeneric("table.init");
 	}
 
@@ -49,22 +53,28 @@ class BansManager
 					[$by, $reason],
 					$this->main->getConfig()->get("messages")["for_banned"]
 				);
-				$this->db->executeInsert("bans.add", [
+				$this->db->executeInsert(
+					"bans.add",
+					[
 					"banned" => $banned,
 					"nickname" => $nickname,
 					"by" => $by,
 					"reason" => $reason,
 					"message" => $message
-				], function () use ($nickname, $reason, $by, $banned, $player, $message): void {
-					$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallPost(
-						$this->main->getVk()->getReadyParams("waiting", $nickname, $reason, $by),
-						$banned
-					));
+					],
+					function () use ($nickname, $reason, $by, $banned, $player, $message): void {
+						$this->main->getServer()->getAsyncPool()->submitTask(
+							new AsyncWallPost(
+								$this->main->getVk()->getReadyParams("waiting", $nickname, $reason, $by),
+								$banned
+							)
+						);
 
-					if ($player and $player->isOnline()) {
-						$player->kick($message);
+						if ($player and $player->isOnline()) {
+							$player->kick($message);
+						}
 					}
-				});
+				);
 			},
 			fn () => null
 		);
@@ -82,9 +92,11 @@ class BansManager
 				$this->db->executeGeneric(
 					"bans.remove",
 					["banned" => $banned],
-					fn (): int => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallDelete(
-						$this->main->getVk()->getReadyParams(postId: $row["postId"])
-					))
+					fn (): int => $this->main->getServer()->getAsyncPool()->submitTask(
+						new AsyncWallDelete(
+							$this->main->getVk()->getReadyParams(postId: $row["postId"])
+						)
+					)
 				);
 			},
 			fn () => null
@@ -103,15 +115,17 @@ class BansManager
 				$this->db->executeChange(
 					"bans.confirm",
 					["banned" => $banned, "confirmed" => true],
-					fn () => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
-						$this->main->getVk()->getReadyParams(
-							"confirmed",
-							$row["nickname"],
-							$row["reason"],
-							$row["by"],
-							$row["postId"]
+					fn () => $this->main->getServer()->getAsyncPool()->submitTask(
+						new AsyncWallEdit(
+							$this->main->getVk()->getReadyParams(
+								"confirmed",
+								$row["nickname"],
+								$row["reason"],
+								$row["by"],
+								$row["postId"]
+							)
 						)
-					))
+					)
 				);
 			},
 			fn () => null
@@ -130,15 +144,17 @@ class BansManager
 				$this->db->executeChange(
 					"bans.confirm",
 					["banned" => $banned, "confirmed" => false],
-					fn (): int => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
-						$this->main->getVk()->getReadyParams(
-							"denied",
-							$row["nickname"],
-							$row["reason"],
-							$row["by"],
-							$row["postId"]
+					fn (): int => $this->main->getServer()->getAsyncPool()->submitTask(
+						new AsyncWallEdit(
+							$this->main->getVk()->getReadyParams(
+								"denied",
+								$row["nickname"],
+								$row["reason"],
+								$row["by"],
+								$row["postId"]
+							)
 						)
-					))
+					)
 				);
 			},
 			fn () => null
@@ -154,10 +170,13 @@ class BansManager
 					return;
 				}
 
-				$this->db->executeChange("bans.setPostId", [
+				$this->db->executeChange(
+					"bans.setPostId",
+					[
 					"banned" => $banned,
 					"postId" => $postId
-				]);
+					]
+				);
 			},
 			fn () => null
 		);

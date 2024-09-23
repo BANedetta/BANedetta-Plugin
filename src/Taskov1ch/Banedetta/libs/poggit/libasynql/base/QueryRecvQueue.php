@@ -22,13 +22,16 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\base;
 
+use function is_string;
+
 use pmmp\thread\ThreadSafe;
 use pmmp\thread\ThreadSafeArray;
+
+use function serialize;
+
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlResult;
 
-use function is_string;
-use function serialize;
 use function unserialize;
 
 class QueryRecvQueue extends ThreadSafe
@@ -47,18 +50,22 @@ class QueryRecvQueue extends ThreadSafe
 	 */
 	public function publishResult(int $queryId, array $results): void
 	{
-		$this->synchronized(function () use ($queryId, $results): void {
-			$this->queue[] = serialize([$queryId, $results]);
-			$this->notify();
-		});
+		$this->synchronized(
+			function () use ($queryId, $results): void {
+				$this->queue[] = serialize([$queryId, $results]);
+				$this->notify();
+			}
+		);
 	}
 
 	public function publishError(int $queryId, SqlError $error): void
 	{
-		$this->synchronized(function () use ($error, $queryId): void {
-			$this->queue[] = serialize([$queryId, $error]);
-			$this->notify();
-		});
+		$this->synchronized(
+			function () use ($error, $queryId): void {
+				$this->queue[] = serialize([$queryId, $error]);
+				$this->notify();
+			}
+		);
 	}
 
 	public function fetchResults(&$queryId, &$results): bool
@@ -76,13 +83,15 @@ class QueryRecvQueue extends ThreadSafe
 	 */
 	public function fetchAllResults(): array
 	{
-		return $this->synchronized(function (): array {
-			$ret = [];
-			while ($this->fetchResults($queryId, $results)) {
-				$ret[] = [$queryId, $results];
+		return $this->synchronized(
+			function (): array {
+				$ret = [];
+				while ($this->fetchResults($queryId, $results)) {
+					$ret[] = [$queryId, $results];
+				}
+				return $ret;
 			}
-			return $ret;
-		});
+		);
 	}
 
 	/**
@@ -90,16 +99,18 @@ class QueryRecvQueue extends ThreadSafe
 	 */
 	public function waitForResults(int $expectedResults): array
 	{
-		return $this->synchronized(function () use ($expectedResults): array {
-			$ret = [];
-			while (count($ret) < $expectedResults) {
-				if (!$this->fetchResults($queryId, $results)) {
-					$this->wait();
-					continue;
+		return $this->synchronized(
+			function () use ($expectedResults): array {
+				$ret = [];
+				while (count($ret) < $expectedResults) {
+					if (!$this->fetchResults($queryId, $results)) {
+						$this->wait();
+						continue;
+					}
+					$ret[] = [$queryId, $results];
 				}
-				$ret[] = [$queryId, $results];
+				return $ret;
 			}
-			return $ret;
-		});
+		);
 	}
 }

@@ -22,15 +22,34 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\sqlite3;
 
+use function assert;
+
 use Closure;
 use ErrorException;
 use Exception;
+
+use const INF;
+
 use InvalidArgumentException;
+
+use function is_array;
+
+use const NAN;
+
 use pocketmine\errorhandler\ErrorToExceptionHandler;
 use pocketmine\snooze\SleeperHandlerEntry;
-use pocketmine\snooze\SleeperNotifier;
+use SQLite3;
+
+use const SQLITE3_ASSOC;
+use const SQLITE3_BLOB;
+use const SQLITE3_FLOAT;
+use const SQLITE3_INTEGER;
+use const SQLITE3_NULL;
+use const SQLITE3_TEXT;
+
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\QueryRecvQueue;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\QuerySendQueue;
+
 use Taskov1ch\Banedetta\libs\poggit\libasynql\base\SqlSlaveThread;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlChangeResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlColumnInfo;
@@ -39,24 +58,12 @@ use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlSelectResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlThread;
-use SQLite3;
-
-use function array_values;
-use function assert;
-use function is_array;
-
-use const INF;
-use const NAN;
-use const SQLITE3_ASSOC;
-use const SQLITE3_BLOB;
-use const SQLITE3_FLOAT;
-use const SQLITE3_INTEGER;
-use const SQLITE3_NULL;
-use const SQLITE3_TEXT;
 
 class Sqlite3Thread extends SqlSlaveThread
 {
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	private $path;
 
 	public static function createFactory(string $path): Closure
@@ -119,17 +126,19 @@ class Sqlite3Thread extends SqlSlaveThread
 				$stmt->close();
 				return $ret;
 			case SqlThread::MODE_SELECT:
-				/** @var SqlColumnInfo[] $colInfo */
+				/**
+	   * @var SqlColumnInfo[] $colInfo
+*/
 				$colInfo = [];
 				$rows = [];
 				while (is_array($row = $result->fetchArray(SQLITE3_ASSOC))) {
 					foreach (array_keys($row) as $i => $columnName) {
 						static $columnTypeMap = [
-							SQLITE3_INTEGER => SqlColumnInfo::TYPE_INT,
-							SQLITE3_FLOAT => SqlColumnInfo::TYPE_FLOAT,
-							SQLITE3_TEXT => SqlColumnInfo::TYPE_STRING,
-							SQLITE3_BLOB => SqlColumnInfo::TYPE_STRING,
-							SQLITE3_NULL => SqlColumnInfo::TYPE_NULL,
+						SQLITE3_INTEGER => SqlColumnInfo::TYPE_INT,
+						SQLITE3_FLOAT => SqlColumnInfo::TYPE_FLOAT,
+						SQLITE3_TEXT => SqlColumnInfo::TYPE_STRING,
+						SQLITE3_BLOB => SqlColumnInfo::TYPE_STRING,
+						SQLITE3_NULL => SqlColumnInfo::TYPE_NULL,
 						];
 						$value = $row[$columnName];
 						$colInfo[$i] = new SqlColumnInfo($columnName, $columnTypeMap[$result->columnType($i)]);

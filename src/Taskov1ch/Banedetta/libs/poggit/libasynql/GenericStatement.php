@@ -65,9 +65,9 @@ interface GenericStatement
 	/**
 	 * Creates a query based on the args and the backend
 	 *
-	 * @param mixed[]     $vars        the input arguments
-	 * @param string|null $placeHolder the backend-dependent variable placeholder constant, if any
-	 * @param mixed[][]   &$outArgs    will be filled with the variables to be passed to the backend
+	 * @param  mixed[]     $vars        the input arguments
+	 * @param  string|null $placeHolder the backend-dependent variable placeholder constant, if any
+	 * @param  mixed[][]   &$outArgs    will be filled with the variables to be passed to the backend
 	 * @return string[]
 	 */
 	public function format(array $vars, ?string $placeHolder, ?array &$outArgs): array;
