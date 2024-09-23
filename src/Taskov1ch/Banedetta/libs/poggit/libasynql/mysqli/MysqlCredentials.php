@@ -27,11 +27,9 @@ use mysqli;
 use mysqli_sql_exception;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\ConfigException;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
-
 use function strlen;
 
-class MysqlCredentials implements JsonSerializable
-{
+class MysqlCredentials implements JsonSerializable{
 	/** @var string $host */
 	private $host;
 	/** @var string $username */
@@ -46,6 +44,7 @@ class MysqlCredentials implements JsonSerializable
 	private $socket;
 	/** @var MysqlSslCredentials|null */
 	private $sslCredentials;
+
 
 	/**
 	 * Creates a new {@link MysqlCredentials} instance from an array (e.g. from Config), with the following defaults:
@@ -63,9 +62,8 @@ class MysqlCredentials implements JsonSerializable
 	 * @return MysqlCredentials
 	 * @throws ConfigException If <code>schema</code> is missing and <code>$defaultSchema</code> is null/not passed
 	 */
-	public static function fromArray(array $array, ?string $defaultSchema = null): MysqlCredentials
-	{
-		if (!isset($defaultSchema, $array["schema"])) {
+	public static function fromArray(array $array, ?string $defaultSchema = null) : MysqlCredentials{
+		if(!isset($defaultSchema, $array["schema"])){
 			throw new ConfigException("The attribute \"schema\" is missing in the MySQL settings");
 		}
 		return new MysqlCredentials(
@@ -90,8 +88,7 @@ class MysqlCredentials implements JsonSerializable
 	 * @param string $socket
 	 * @param MysqlSslCredentials|null $sslCredentials
 	 */
-	public function __construct(string $host, string $username, string $password, string $schema, int $port = 3306, string $socket = "", ?MysqlSslCredentials $sslCredentials = null)
-	{
+	public function __construct(string $host, string $username, string $password, string $schema, int $port = 3306, string $socket = "", ?MysqlSslCredentials $sslCredentials = null){
 		$this->host = $host;
 		$this->username = $username;
 		$this->password = $password;
@@ -108,21 +105,20 @@ class MysqlCredentials implements JsonSerializable
 	 *
 	 * @throws SqlError
 	 */
-	public function newMysqli(): mysqli
-	{
+	public function newMysqli() : mysqli{
 		$mysqli = mysqli_init();
-		if ($mysqli === false) {
+		if($mysqli === false){
 			throw new SqlError(SqlError::STAGE_CONNECT, "Failed to initialize mysqli");
 		}
-		if ($this->sslCredentials !== null) {
+		if($this->sslCredentials !== null){
 			$this->sslCredentials->applyToInstance($mysqli);
 		}
 		try {
 			@mysqli_real_connect($mysqli, $this->host, $this->username, $this->password, $this->schema, $this->port, $this->socket);
-			if ($mysqli->connect_error) {
+			if($mysqli->connect_error){
 				throw new SqlError(SqlError::STAGE_CONNECT, $mysqli->connect_error);
 			}
-		} catch (mysqli_sql_exception $e) {
+		}catch (mysqli_sql_exception $e){
 			//TODO HACK! extensive testing showed that both ways of error handling are acceptable.
 			// maybe it depends on php build, or OS type? I don't really know. Testing it on windows
 			// shows that mysqli_real_connect throws mysqli exception if it is a first connection.
@@ -145,14 +141,13 @@ class MysqlCredentials implements JsonSerializable
 	 *
 	 * @throws SqlError
 	 */
-	public function reconnectMysqli(mysqli $mysqli): void
-	{
+	public function reconnectMysqli(mysqli $mysqli) : void{
 		try {
 			@mysqli_real_connect($mysqli, $this->host, $this->username, $this->password, $this->schema, $this->port, $this->socket);
 			if ($mysqli->connect_error) {
 				throw new SqlError(SqlError::STAGE_CONNECT, $mysqli->connect_error);
 			}
-		} catch (mysqli_sql_exception $e) {
+		}catch (mysqli_sql_exception $e){
 			throw new SqlError(SqlError::STAGE_CONNECT, $e->getMessage());
 		}
 	}
@@ -162,8 +157,7 @@ class MysqlCredentials implements JsonSerializable
 	 *
 	 * @return string
 	 */
-	public function __toString(): string
-	{
+	public function __toString() : string{
 		return "$this->username@$this->host:$this->port/schema,$this->socket";
 	}
 
@@ -172,8 +166,7 @@ class MysqlCredentials implements JsonSerializable
 	 *
 	 * @return array
 	 */
-	public function __debugInfo()
-	{
+	public function __debugInfo(){
 		return [
 			"host" => $this->host,
 			"username" => $this->username,
@@ -185,8 +178,7 @@ class MysqlCredentials implements JsonSerializable
 		];
 	}
 
-	public function jsonSerialize(): array
-	{
+	public function jsonSerialize() : array{
 		return [
 			"host" => $this->host,
 			"username" => $this->username,

@@ -26,8 +26,7 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator;
  * @template T
  * @internal
  */
-final class SendingChannelState
-{
+final class SendingChannelState{
 	/** @var list<array{T, Closure(): void}> */
 	public array $queue = [];
 }

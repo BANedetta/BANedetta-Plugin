@@ -25,7 +25,6 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\generic;
 use InvalidArgumentException;
 use RuntimeException;
 use SQLite3;
-
 use function array_map;
 use function assert;
 use function bin2hex;
@@ -37,34 +36,31 @@ use function is_int;
 use function is_string;
 use function strpos;
 
-class SqliteStatementImpl extends GenericStatementImpl
-{
-	public function getDialect(): string
-	{
+class SqliteStatementImpl extends GenericStatementImpl{
+	public function getDialect() : string{
 		return "sqlite";
 	}
 
-	protected function formatVariable(GenericVariable $variable, $value, ?string $placeHolder, array &$outArgs): string
-	{
-		if ($variable->isList()) {
+	protected function formatVariable(GenericVariable $variable, $value, ?string $placeHolder, array &$outArgs) : string{
+		if($variable->isList()){
 			assert(is_array($value));
 
 			// IN () works with SQLite3.
 			$unlist = $variable->unlist();
-			return "(" . implode(",", array_map(function ($value) use ($placeHolder, $unlist, &$outArgs) {
-				return $this->formatVariable($unlist, $value, $placeHolder, $outArgs);
-			}, $value)) . ")";
+			return "(" . implode(",", array_map(function($value) use ($placeHolder, $unlist, &$outArgs){
+					return $this->formatVariable($unlist, $value, $placeHolder, $outArgs);
+				}, $value)) . ")";
 		}
-
-		if ($value === null) {
-			if (!$variable->isNullable()) {
+		
+		if($value === null){
+			if(!$variable->isNullable()){
 				throw new InvalidArgumentException("The variable :{$variable->getName()} is not nullable");
 			}
 
 			return "NULL";
 		}
 
-		switch ($variable->getType()) {
+		switch($variable->getType()){
 			case GenericVariable::TYPE_BOOL:
 				assert(is_bool($value));
 				return $value ? "1" : "0";
@@ -79,7 +75,7 @@ class SqliteStatementImpl extends GenericStatementImpl
 
 			case GenericVariable::TYPE_STRING:
 				assert(is_string($value));
-				if (strpos($value, "\0") !== false) {
+				if(strpos($value, "\0") !== false){
 					return "X'" . bin2hex($value) . "'";
 				}
 				return "'" . SQLite3::escapeString($value) . "'";

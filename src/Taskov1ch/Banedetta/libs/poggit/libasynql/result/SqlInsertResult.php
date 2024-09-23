@@ -22,19 +22,16 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\result;
 
-class SqlInsertResult extends SqlChangeResult
-{
+class SqlInsertResult extends SqlChangeResult{
 	/** @var int */
 	private $insertId;
 
-	public function __construct(int $affectedRows, int $insertId)
-	{
+	public function __construct(int $affectedRows, int $insertId){
 		parent::__construct($affectedRows);
 		$this->insertId = $insertId;
 	}
 
-	public function getInsertId(): int
-	{
+	public function getInsertId() : int{
 		return $this->insertId;
 	}
 }

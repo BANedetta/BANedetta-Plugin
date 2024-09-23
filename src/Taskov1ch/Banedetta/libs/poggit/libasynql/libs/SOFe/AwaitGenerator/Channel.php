@@ -22,22 +22,19 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator;
 
-use Generator;
-
 use function array_shift;
 use function count;
+use Generator;
 
 /**
  * A channel allows coroutines to communicate by sending and polling values in an FIFO stream.
  * @template T
  */
-final class Channel
-{
+final class Channel{
 	private EmptyChannelState|SendingChannelState|ReceivingChannelState $state;
 
-	public function __construct()
-	{
-		$this->state = new EmptyChannelState();
+	public function __construct(){
+		$this->state = new EmptyChannelState;
 	}
 
 	/**
@@ -46,37 +43,36 @@ final class Channel
 	 *
 	 * @param T $value
 	 */
-	public function sendAndWait($value): Generator
-	{
-		if ($this->state instanceof ReceivingChannelState) {
+	public function sendAndWait($value) : Generator{
+		if($this->state instanceof ReceivingChannelState){
 			$receiver = array_shift($this->state->queue);
-			if (count($this->state->queue) === 0) {
-				$this->state = new EmptyChannelState();
+			if(count($this->state->queue) === 0){
+				$this->state = new EmptyChannelState;
 			}
 			$receiver($value);
 			return;
 		}
 
-		if ($this->state instanceof EmptyChannelState) {
-			$this->state = new SendingChannelState();
+		if($this->state instanceof EmptyChannelState){
+			$this->state = new SendingChannelState;
 		}
 
 		try {
 			// $key holds the object reference directly instead of the key to avoid GC causing spl_object_id duplicate
 			$key = null;
 
-			yield from Await::promise(function ($resolve) use ($value, &$key) {
+			yield from Await::promise(function($resolve) use($value, &$key){
 				$key = $resolve;
 				$this->state->queue[spl_object_id($key)] = [$value, $resolve];
 			});
 		} finally {
-			if ($key !== null) {
-				if ($this->state instanceof SendingChannelState) {
+			if($key !== null) {
+				if($this->state instanceof SendingChannelState) {
 					// our key may still exist in the channel state
 
 					unset($this->state->queue[spl_object_id($key)]);
-					if (count($this->state->queue) === 0) {
-						$this->state = new EmptyChannelState();
+					if(count($this->state->queue) === 0) {
+						$this->state = new EmptyChannelState;
 					}
 				}
 				// else, state already changed means our key has been shifted already.
@@ -93,8 +89,7 @@ final class Channel
 	 *
 	 * @param T $value
 	 */
-	public function sendWithoutWait($value): void
-	{
+	public function sendWithoutWait($value) : void{
 		Await::g2c($this->sendAndWait($value));
 	}
 
@@ -104,12 +99,11 @@ final class Channel
 	 *
 	 * @param T $value
 	 */
-	public function trySend($value): bool
-	{
-		if ($this->state instanceof ReceivingChannelState) {
+	public function trySend($value) : bool {
+		if($this->state instanceof ReceivingChannelState) {
 			$receiver = array_shift($this->state->queue);
-			if (count($this->state->queue) === 0) {
-				$this->state = new EmptyChannelState();
+			if(count($this->state->queue) === 0){
+				$this->state = new EmptyChannelState;
 			}
 			$receiver($value);
 			return true;
@@ -124,37 +118,36 @@ final class Channel
 	 *
 	 * @return Generator<mixed, Await::RESOLVE|null|Await::RESOLVE_MULTI|Await::REJECT|Await::ONCE|Await::ALL|Await::RACE|Generator, mixed, T>
 	 */
-	public function receive(): Generator
-	{
-		if ($this->state instanceof SendingChannelState) {
+	public function receive() : Generator{
+		if($this->state instanceof SendingChannelState){
 			[$value, $sender] = array_shift($this->state->queue);
-			if (count($this->state->queue) === 0) {
-				$this->state = new EmptyChannelState();
+			if(count($this->state->queue) === 0){
+				$this->state = new EmptyChannelState;
 			}
 			$sender();
 			return $value;
 		}
 
-		if ($this->state instanceof EmptyChannelState) {
-			$this->state = new ReceivingChannelState();
+		if($this->state instanceof EmptyChannelState){
+			$this->state = new ReceivingChannelState;
 		}
 
 		try {
 			// $key holds the object reference directly instead of the key to avoid GC causing spl_object_id duplicate
 			$key = null;
 
-			return yield from Await::promise(function ($resolve) use (&$key) {
+			return yield from Await::promise(function($resolve) use(&$key){
 				$key = $resolve;
 				$this->state->queue[spl_object_id($key)] = $resolve;
 			});
 		} finally {
-			if ($key !== null) {
-				if ($this->state instanceof ReceivingChannelState) {
+			if($key !== null) {
+				if($this->state instanceof ReceivingChannelState) {
 					// our key may still exist in the channel state
 
 					unset($this->state->queue[spl_object_id($key)]);
-					if (count($this->state->queue) === 0) {
-						$this->state = new EmptyChannelState();
+					if(count($this->state->queue) === 0) {
+						$this->state = new EmptyChannelState;
 					}
 				}
 				// else, state already changed means our key has been shifted already.
@@ -171,12 +164,11 @@ final class Channel
 	 *
 	 * @return T|U
 	 */
-	public function tryReceiveOr($default)
-	{
-		if ($this->state instanceof SendingChannelState) {
+	public function tryReceiveOr($default) {
+		if($this->state instanceof SendingChannelState) {
 			[$value, $sender] = array_shift($this->state->queue);
-			if (count($this->state->queue) === 0) {
-				$this->state = new EmptyChannelState();
+			if(count($this->state->queue) === 0){
+				$this->state = new EmptyChannelState;
 			}
 			$sender();
 			return $value;
@@ -185,18 +177,16 @@ final class Channel
 		return $default;
 	}
 
-	public function getSendQueueSize(): int
-	{
-		if ($this->state instanceof SendingChannelState) {
+	public function getSendQueueSize() : int {
+		if($this->state instanceof SendingChannelState){
 			return count($this->state->queue);
 		}
 
 		return 0;
 	}
 
-	public function getReceiveQueueSize(): int
-	{
-		if ($this->state instanceof ReceivingChannelState) {
+	public function getReceiveQueueSize() : int {
+		if($this->state instanceof ReceivingChannelState){
 			return count($this->state->queue);
 		}
 

@@ -24,7 +24,6 @@ namespace Taskov1ch\Banedetta\libs\poggit\libasynql\generic;
 
 use InvalidArgumentException;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
-
 use function array_pop;
 use function assert;
 use function count;
@@ -36,12 +35,10 @@ use function preg_split;
 use function strpos;
 use function substr;
 use function trim;
-
 use const PREG_SPLIT_NO_EMPTY;
 use const PREG_SPLIT_OFFSET_CAPTURE;
 
-class GenericStatementFileParser
-{
+class GenericStatementFileParser{
 	/** @var string|null */
 	private $fileName;
 	/** @var resource */
@@ -72,8 +69,7 @@ class GenericStatementFileParser
 	 * @param string|null $fileName
 	 * @param resource    $fh
 	 */
-	public function __construct(?string $fileName, $fh)
-	{
+	public function __construct(?string $fileName, $fh){
 		$this->fileName = $fileName;
 		$this->fh = $fh;
 	}
@@ -83,16 +79,15 @@ class GenericStatementFileParser
 	 *
 	 * @throws GenericStatementFileParseException if the file contains a syntax error or compile error
 	 */
-	public function parse(): void
-	{
-		try {
-			while (($line = fgets($this->fh)) !== false) {
+	public function parse() : void{
+		try{
+			while(($line = fgets($this->fh)) !== false){
 				$this->readLine($this->lineNo + 1, $line);
 			}
-			if (!empty($this->identifierStack)) {
+			if(!empty($this->identifierStack)){
 				$this->error("Unexpected end of file, " . count($this->identifierStack) . " groups not closed");
 			}
-		} finally {
+		}finally{
 			fclose($this->fh);
 		}
 	}
@@ -100,39 +95,36 @@ class GenericStatementFileParser
 	/**
 	 * @return GenericStatement[]
 	 */
-	public function getResults(): array
-	{
+	public function getResults() : array{
 		return $this->results;
 	}
 
-	private function readLine(int $lineNo, string $line): void
-	{
+	private function readLine(int $lineNo, string $line) : void{
 		$this->lineNo = $lineNo; // In fact I don't need this parameter. I just want to get the line number onto the stack trace.
 		$line = trim($line);
 
-		if ($line === "") {
+		if($line === ""){
 			return;
 		}
 
-		if ($this->tryCommand($line)) {
+		if($this->tryCommand($line)){
 			return;
 		}
 
-		if (empty($this->identifierStack)) {
+		if(empty($this->identifierStack)){
 			$this->error("Unexpected query text; start a query with { first");
 		}
 		$this->buffer[] = $line;
 		$this->parsingQuery = true;
 	}
 
-	private function tryCommand(string $line): bool
-	{
-		if (strpos($line, "-- #") !== 0) {
+	private function tryCommand(string $line) : bool{
+		if(strpos($line, "-- #") !== 0){
 			return false;
 		}
 
 		$line = ltrim(substr($line, 4));
-		if ($line === '') {
+		if($line === ''){
 			return true;
 		}
 		$cmd = $line[0];
@@ -140,12 +132,12 @@ class GenericStatementFileParser
 		$argOffsets = [];
 		$regex = /** @lang RegExp */
 			'/[ \t]/';
-		foreach (preg_split($regex, substr($line, 1), -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE) as [$arg, $offset]) {
+		foreach(preg_split($regex, substr($line, 1), -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE) as [$arg, $offset]){
 			$args[] = $arg;
 			$argOffsets[] = $offset;
 		}
 
-		switch ($cmd) {
+		switch($cmd){
 			case "!":
 				$this->dialectCommand($args);
 				return true;
@@ -169,59 +161,54 @@ class GenericStatementFileParser
 		return true;
 	}
 
-	private function dialectCommand(array $args): void
-	{
+	private function dialectCommand(array $args) : void{
 		// dialect command
-		if ($this->knownDialect !== null) {
+		if($this->knownDialect !== null){
 			$this->error("Dialect declared more than once");
 		}
 
-		if (!isset($args[0])) {
+		if(!isset($args[0])){
 			$this->error("Missing operand: DIALECT");
 		}
 
 		$this->knownDialect = $args[0];
 	}
 
-	private function startCommand(array $args): void
-	{
-		if ($this->knownDialect === null) {
+	private function startCommand(array $args) : void{
+		if($this->knownDialect === null){
 			$this->error("Dialect declaration must be the very first line");
 		}
 
-		if ($this->parsingQuery) {
+		if($this->parsingQuery){
 			$this->error("Unexpected {, close previous query first");
 		}
 
-		if (!isset($args[0])) {
+		if(!isset($args[0])){
 			$this->error("Missing operand: IDENTIFIER_NAME");
 		}
 
 		$this->identifierStack[] = $args[0];
 	}
 
-	private function delimiterCommand(): void
-	{
-		if (!$this->parsingQuery) {
+	private function delimiterCommand() : void{
+		if(!$this->parsingQuery){
 			$this->error("Unexpected &, start a query first");
 		}
 
-		if (count($this->buffer) === 0) {
-			$this->error("Encountered delimiter line without any query content");
-			;
+		if(count($this->buffer) === 0){
+			$this->error("Encountered delimiter line without any query content");;
 		}
 
 		$this->flushBuffer();
 	}
 
-	private function endCommand(): void
-	{
-		if (count($this->identifierStack) === 0) {
+	private function endCommand() : void{
+		if(count($this->identifierStack) === 0){
 			$this->error("No matching { for }");
 		}
 
-		if ($this->parsingQuery) {
-			if (count($this->buffer) === 0) {
+		if($this->parsingQuery){
+			if(count($this->buffer) === 0){
 				$this->error("Documentation/Variables are declared but no query is provided");
 			}
 
@@ -238,7 +225,7 @@ class GenericStatementFileParser
 			$this->buffer = [];
 			$this->parsingQuery = false;
 
-			if (isset($this->results[$stmt->getName()])) {
+			if(isset($this->results[$stmt->getName()])){
 				$this->error("Duplicate query name ({$stmt->getName()})");
 			}
 			$this->results[$stmt->getName()] = $stmt;
@@ -247,38 +234,35 @@ class GenericStatementFileParser
 		array_pop($this->identifierStack);
 	}
 
-	private function flushBuffer(): void
-	{
+	private function flushBuffer() : void {
 		$buffer = implode("\n", $this->buffer);
 		$this->currentBuffers[] = $buffer;
 		$this->buffer = [];
 	}
 
-	private function varCommand(array $args, string $line, array $argOffsets): void
-	{
-		if (empty($this->identifierStack)) {
+	private function varCommand(array $args, string $line, array $argOffsets) : void{
+		if(empty($this->identifierStack)){
 			$this->error("Unexpected variable declaration; start a query with { first");
 		}
 
-		if (!isset($args[1])) {
+		if(!isset($args[1])){
 			$this->error("Missing operand: VAR_TYPE");
 		}
 
-		try {
+		try{
 			$var = new GenericVariable($args[0], $args[1], isset($args[2]) ? substr($line, $argOffsets[2] + 1) : null);
-		} catch (InvalidArgumentException $e) {
+		}catch(InvalidArgumentException $e){
 			throw $this->error($e->getMessage());
 		}
-		if (isset($this->variables[$var->getName()])) {
+		if(isset($this->variables[$var->getName()])){
 			$this->error("Duplicate variable definition of :{$var->getName()}");
 		}
 		$this->variables[$var->getName()] = $var;
 		$this->parsingQuery = true;
 	}
 
-	private function docCommand(array $args, string $line, array $argOffsets): void
-	{
-		if (empty($this->identifierStack)) {
+	private function docCommand(array $args, string $line, array $argOffsets) : void{
+		if(empty($this->identifierStack)){
 			$this->error("Unexpected documentation; start a query with { first");
 		}
 
@@ -291,8 +275,7 @@ class GenericStatementFileParser
 	 * @return GenericStatementFileParseException
 	 * @throw GenericStatementFileParseException
 	 */
-	private function error(string $problem): GenericStatementFileParseException
-	{
+	private function error(string $problem) : GenericStatementFileParseException{
 		throw new GenericStatementFileParseException($problem, $this->lineNo, $this->fileName);
 	}
 }
