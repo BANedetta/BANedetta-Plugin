@@ -24,7 +24,7 @@ class AsyncWallPost extends AsyncTask
 	public function onCompletion(): void
 	{
 		$post_id = $this->getResult()["post_id"];
-		Main::getInstance()->getBansManager()->setPostId($this->nickname, $post_id);
+		Main::getInstance()->getBansManager()->setVkPostId($this->nickname, $post_id);
 	}
 
 }

@@ -44,6 +44,7 @@ class Vk
 			}
 			return true;
 		} catch (Exception $e) {
+			// throw $e;
 			return false;
 		}
 	}
@@ -54,9 +55,9 @@ class Vk
 		(new Longpoll($this->config["token"], $this->config["group_id"]))->onRun();
 	}
 
-	public function getAdmins(): array
+	public function isAdmin(int $id): bool
 	{
-		return $this->config["admins"];
+		return in_array($id, $this->config["admins"]);
 	}
 
 	public function getReadyParams(
@@ -69,7 +70,7 @@ class Vk
 			"v" => 5.199,
 			"owner_id" => -$this->config["group_id"],
 			"from_group" => 1,
-			"attachments" => $this->config["posts"][$type]["attachment"],
+			"attachments" => $this->config["attachments"][$type],
 			"message" => $message
 		];
 

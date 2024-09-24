@@ -27,6 +27,7 @@ class Main extends PluginBase
 		$this->bansManager = new BansManager($this);
 		$this->getServer()->getPluginManager()->registerEvents(new GameEventsListener($this), $this);
 		$this->saveDefaultConfig();
+		$this->bansManager->ban("tasl", "test", "lol");
 	}
 
 	private function initVk(): bool

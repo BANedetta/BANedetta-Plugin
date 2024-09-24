@@ -49,21 +49,28 @@
 	-- #{ getDataByVkPostId
 		-- # :post_id int
 		SELECT * FROM bans
-		WHERE post_id = :post_id
+		WHERE vk_post_id = :post_id
 	-- #}
 
 	-- #{ getDataByTgPostId
 		-- # :post_id int
 		SELECT * FROM bans
-		WHERE post_id = :post_id
+		WHERE tg_post_id = :post_id
 	-- #}
 
-	-- #{ setPostIds
+	-- #{ setVkPostId
 		-- # :nickname string
-		-- # :vk_post_id int
-		-- # :tg_post_id int
+		-- # :post_id int
 		UPDATE bans
-		SET vk_post_id = :vk_post_id, tg_post_id = :tg_post_id
+		SET vk_post_id = :post_id
+		WHERE nickname = :nickname;
+	-- #}
+
+	-- #{ setTgPostId
+		-- # :nickname string
+		-- # :post_id int
+		UPDATE bans
+		SET tg_post_id = :post_id
 		WHERE nickname = :nickname;
 	-- #}
 

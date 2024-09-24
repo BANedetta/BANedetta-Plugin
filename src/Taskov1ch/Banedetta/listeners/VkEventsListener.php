@@ -17,28 +17,30 @@ class VkEventsListener
 
 	public function WallReplyNewEvent(VkEvent $event): void
 	{
-		var_dump($event->getUpdates());
-		// $data = $event->getUpdates();
+		// var_dump($event->getUpdates());
+		$data = $event->getUpdates();
 
-		// if (!in_array($data["from_id"], $this->main->getVk()->getAdmins())) {
-		// 	return;
-		// }
+		var_dump($this->main->getVk()->isAdmin($data["from_id"]));
+		if ($this->main->getVk()->isAdmin($data["from_id"])) {
+			return;
+		}
 
-		// $bans = $this->main->getBansManager();
-		// $bans->getDataByPostId($data["post_id"])->onCompletion(
-		// 	function (?array $row) use ($bans, $data) {
-		// 		if ((!$row) or $row["confirmed"] !== null) {
-		// 			return;
-		// 		}
+		$bans = $this->main->getBansManager();
+		$bans->getDataByVkPostId($data["post_id"])->onCompletion(
+			function (?array $row) use ($bans, $data): void {
+				var_dump($row);
+				if ((!$row) or $row["confirmed"] !== null) {
+					return;
+				}
 
-		// 		match($data["text"]) {
-		// 			"+" => $bans->confirm($row["nickname"]),
-		// 			"-" => $bans->deny($row["nickname"]),
-		// 			default => null
-		// 		};
-		// 	},
-		// 	fn () => null
-		// );
+				match($data["text"]) {
+					"+" => $bans->confirm($row["nickname"]),
+					"-" => $bans->deny($row["nickname"]),
+					default => null
+				};
+			},
+			fn () => var_dump(false)
+		);
 	}
 
 }

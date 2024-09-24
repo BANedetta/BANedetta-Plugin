@@ -39,7 +39,7 @@ class BansManager
 					return;
 				}
 
-				$message = Messages::getReadyKickMessage("confirmed", $row["by"], $row["reason"]);
+				$message = Messages::getReadyKickMessage("confirmed", $by, $reason);
 				$post = Posts::getReadyPost("waiting", $nickname, $by, $reason);
 				$this->db->executeInsert("bans.add", [
 					"nickname" => $nickname,
@@ -66,11 +66,11 @@ class BansManager
 		);
 	}
 
-	public function unban(string $nickname): void
+	public function unban(string $nickname, bool $deletePost = true): void
 	{
 		$nickname = strtolower($nickname);
 		$this->getData($nickname)->onCompletion(
-			function (?array $row) use ($nickname): void {
+			function (?array $row) use ($nickname, $deletePost): void {
 				if (!$row) {
 					return;
 				}
@@ -78,9 +78,13 @@ class BansManager
 				$this->db->executeGeneric(
 					"bans.remove",
 					["nickname" => $nickname],
-					fn (): int => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallDelete(
-						$this->main->getVk()->getReadyParams(postId: $row["post_id"])
-					))
+					function () use ($row, $deletePost): void {
+						if ($deletePost) {
+							$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallDelete(
+								$this->main->getVk()->getReadyParams(postId: $row["post_id"])
+							));
+						}
+					}
 				);
 			},
 			fn () => null
@@ -124,23 +128,29 @@ class BansManager
 	{
 		$nickname = strtolower($nickname);
 		$this->getData($nickname)->onCompletion(
-			function (?array $row): void {
+			function (?array $row) use ($nickname): void {
 				if (!$row) {
 					return;
 				}
 
-				$this->unban($row["nickname"]);
+				$post = Posts::getReadyPost("confirmed", $nickname, $row["by"], $row["reason"]);
+				$this->unban($nickname);
 				$this->ban(
 					$row["by"],
 					"console",
 					$this->main->getConfig()->get("messages")["for_sender"]["unconfirmed_ban_reason"]
 				);
+				$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
+					$this->main->getVk()->getReadyParams("denied", $post)
+				));
+
+				// tg
 			},
 			fn () => null
 		);
 	}
 
-	public function setPostId(string $nickname, int $postId): void
+	public function setVkPostId(string $nickname, int $postId): void
 	{
 		$nickname = strtolower($nickname);
 		$this->getData($nickname)->onCompletion(
@@ -149,14 +159,31 @@ class BansManager
 					return;
 				}
 
-				$this->db->executeChange("bans.setPostId", [
+				$this->db->executeChange("bans.setVkPostId", [
 					"nickname" => $nickname,
-					"postId" => $postId
+					"post_id" => $postId
 				]);
 			},
 			fn () => null
 		);
+	}
 
+	public function setTgPostId(string $nickname, int $postId): void
+	{
+		$nickname = strtolower($nickname);
+		$this->getData($nickname)->onCompletion(
+			function (?array $row) use ($nickname, $postId): void {
+				if (!$row) {
+					return;
+				}
+
+				$this->db->executeChange("bans.setTgPostId", [
+					"nickname" => $nickname,
+					"post_id" => $postId
+				]);
+			},
+			fn () => null
+		);
 	}
 
 	public function getData(string $nickname): Promise
@@ -181,9 +208,11 @@ class BansManager
 			"bans.getDataByVkPostId",
 			["post_id" => $postId],
 			function (array $rows) use ($promise): void {
+				var_dump($rows);
 				$promise->resolve($rows[0] ?? null);
 			},
-			fn () => $promise->reject()
+			fn () => var_dump(false)
+			// fn () => $promise->reject()
 		);
 		return $promise->getPromise();
 	}
