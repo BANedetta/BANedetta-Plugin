@@ -14,7 +14,7 @@ class Posts
 		string $reason
 	): string {
 		return str_replace(
-			["{nickname}", "{by}", "{reason}"],
+			["{banned}", "{by}", "{reason}"],
 			[$nickname, $by, $reason],
 			Main::getInstance()->getConfig()->get("posts")[$type]
 		);

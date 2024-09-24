@@ -14,7 +14,7 @@ class AsyncWallEdit extends AsyncTask
 
 	public function onRun(): void
 	{
-		$request = Internet::getURL(Vk::ENDPOINT . "wall.edit?" . $this->params);
+		var_dump(Internet::getURL(Vk::ENDPOINT . "wall.edit?" . $this->params)->getBody());
 	}
 
 }

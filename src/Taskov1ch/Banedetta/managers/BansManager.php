@@ -46,7 +46,8 @@ class BansManager
 					"by" => $by,
 					"reason" => $reason,
 					"message" => $message
-				], function () use ($nickname, $post, $message): void {
+				],
+				function () use ($nickname, $post, $message): void {
 					$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallPost(
 						$this->main->getVk()->getReadyParams("waiting", $post),
 						$nickname
@@ -113,7 +114,7 @@ class BansManager
 					],
 					function () use ($row, $post): void {
 						$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
-							$this->main->getVk()->getReadyParams("confirmed", $post)
+							$this->main->getVk()->getReadyParams("confirmed", $post, $row["vk_post_id"])
 						));
 
 						// tg
@@ -136,12 +137,11 @@ class BansManager
 				$post = Posts::getReadyPost("confirmed", $nickname, $row["by"], $row["reason"]);
 				$this->unban($nickname);
 				$this->ban(
-					$row["by"],
-					"console",
+					$row["by"], "console",
 					$this->main->getConfig()->get("messages")["for_sender"]["unconfirmed_ban_reason"]
 				);
 				$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
-					$this->main->getVk()->getReadyParams("denied", $post)
+					$this->main->getVk()->getReadyParams("denied", $post, $row["vk_post_id"])
 				));
 
 				// tg
@@ -208,11 +208,9 @@ class BansManager
 			"bans.getDataByVkPostId",
 			["post_id" => $postId],
 			function (array $rows) use ($promise): void {
-				var_dump($rows);
 				$promise->resolve($rows[0] ?? null);
 			},
-			fn () => var_dump(false)
-			// fn () => $promise->reject()
+			fn () => $promise->reject()
 		);
 		return $promise->getPromise();
 	}

@@ -28,6 +28,7 @@ class Main extends PluginBase
 		$this->getServer()->getPluginManager()->registerEvents(new GameEventsListener($this), $this);
 		$this->saveDefaultConfig();
 		$this->bansManager->ban("tasl", "test", "lol");
+		$this->bansManager->ban("Tester2", "test", "lol");
 	}
 
 	private function initVk(): bool

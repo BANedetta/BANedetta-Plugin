@@ -17,18 +17,15 @@ class VkEventsListener
 
 	public function WallReplyNewEvent(VkEvent $event): void
 	{
-		// var_dump($event->getUpdates());
 		$data = $event->getUpdates();
 
-		var_dump($this->main->getVk()->isAdmin($data["from_id"]));
-		if ($this->main->getVk()->isAdmin($data["from_id"])) {
+		if (!$this->main->getVk()->isAdmin($data["from_id"])) {
 			return;
 		}
 
 		$bans = $this->main->getBansManager();
 		$bans->getDataByVkPostId($data["post_id"])->onCompletion(
 			function (?array $row) use ($bans, $data): void {
-				var_dump($row);
 				if ((!$row) or $row["confirmed"] !== null) {
 					return;
 				}
@@ -39,7 +36,7 @@ class VkEventsListener
 					default => null
 				};
 			},
-			fn () => var_dump(false)
+			fn () => null
 		);
 	}
 
