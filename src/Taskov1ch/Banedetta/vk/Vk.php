@@ -36,9 +36,9 @@ class Vk
 
 				$responseData = json_decode($response->getBody(), true);
 
-				if (!isset($responseData["response"])) {
-					return false;
-				}
+				// if (!isset($responseData["response"])) {
+				// 	return false;
+				// }
 
 				$postId = $responseData["response"]["post_id"] ?? $postId;
 			}
@@ -71,7 +71,9 @@ class Vk
 			"owner_id" => -$this->config["group_id"],
 			"from_group" => 1,
 			"attachments" => $this->config["attachments"][$type],
-			"message" => $message
+			"message" => $message,
+			// "captcha_sid" => $this->config["captcha_cid"],
+			// "captcha_key" => $this->config["captcha_key"],
 		];
 
 		if ($postId) {
