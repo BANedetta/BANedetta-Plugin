@@ -28,10 +28,6 @@ class BansManager
 
 	public function ban(string $nickname, string $by, string $reason): void
 	{
-		if (($by = strtolower($by)) === "console") {
-			return;
-		}
-
 		$nickname = strtolower($nickname);
 		$this->getData($nickname)->onCompletion(
 			function (?array $row) use ($nickname, $by, $reason): void {
@@ -39,7 +35,7 @@ class BansManager
 					return;
 				}
 
-				$message = Messages::getReadyKickMessage("confirmed", $by, $reason);
+				$message = Messages::getReadyKickMessage(($by = strtolower($by)) === "console" ? "confirmed" : "waiting", $by, $reason);
 				$post = Posts::getReadyPost("waiting", $nickname, $by, $reason);
 				$this->db->executeInsert("bans.add", [
 					"nickname" => $nickname,
@@ -47,7 +43,11 @@ class BansManager
 					"reason" => $reason,
 					"message" => $message
 				],
-				function () use ($nickname, $post, $message): void {
+				function () use ($nickname, $by, $post, $message): void {
+					if ($by === "console") {
+						return;
+					}
+
 					$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallPost(
 						$this->main->getVk()->getReadyParams("waiting", $post),
 						$nickname
@@ -82,7 +82,7 @@ class BansManager
 					function () use ($row, $deletePost): void {
 						if ($deletePost) {
 							$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallDelete(
-								$this->main->getVk()->getReadyParams(postId: $row["post_id"])
+								$this->main->getVk()->getReadyParams(postId: $row["vk_post_id"])
 							));
 						}
 					}
@@ -134,8 +134,8 @@ class BansManager
 					return;
 				}
 
-				$post = Posts::getReadyPost("confirmed", $nickname, $row["by"], $row["reason"]);
-				$this->unban($nickname);
+				$post = Posts::getReadyPost("denied", $nickname, $row["by"], $row["reason"]);
+				$this->unban($nickname, false);
 				$this->ban(
 					$row["by"], "console",
 					$this->main->getConfig()->get("messages")["for_sender"]["unconfirmed_ban_reason"]
@@ -150,34 +150,20 @@ class BansManager
 		);
 	}
 
-	public function setVkPostId(string $nickname, int $postId): void
+	public function setPostId(string $platform, string $nickname, int $postId): void
 	{
 		$nickname = strtolower($nickname);
 		$this->getData($nickname)->onCompletion(
-			function (?array $row) use ($nickname, $postId): void {
+			function (?array $row) use ($nickname, $postId, $platform): void {
 				if (!$row) {
 					return;
 				}
 
-				$this->db->executeChange("bans.setVkPostId", [
-					"nickname" => $nickname,
-					"post_id" => $postId
-				]);
-			},
-			fn () => null
-		);
-	}
-
-	public function setTgPostId(string $nickname, int $postId): void
-	{
-		$nickname = strtolower($nickname);
-		$this->getData($nickname)->onCompletion(
-			function (?array $row) use ($nickname, $postId): void {
-				if (!$row) {
-					return;
-				}
-
-				$this->db->executeChange("bans.setTgPostId", [
+				$query = match ($platform) {
+					"tg" => "setTgPostId",
+					"vk" => "setVkPostId",
+				};
+				$this->db->executeChange("bans.$query", [
 					"nickname" => $nickname,
 					"post_id" => $postId
 				]);
@@ -201,25 +187,15 @@ class BansManager
 		return $promise->getPromise();
 	}
 
-	public function getDataByVkPostId(int $postId): Promise
+	public function getDataByPostId(string $platform, int $postId): Promise
 	{
 		$promise = new PromiseResolver();
+		$query = match ($platform) {
+			"tg" => "getDataByTgPostId",
+			"vk" => "getDataByVkPostId",
+		};
 		$this->db->executeSelect(
-			"bans.getDataByVkPostId",
-			["post_id" => $postId],
-			function (array $rows) use ($promise): void {
-				$promise->resolve($rows[0] ?? null);
-			},
-			fn () => $promise->reject()
-		);
-		return $promise->getPromise();
-	}
-
-	public function getDataByTgPostId(int $postId): Promise
-	{
-		$promise = new PromiseResolver();
-		$this->db->executeSelect(
-			"bans.getDataByTgPostId",
+			"bans.$query",
 			["post_id" => $postId],
 			function (array $rows) use ($promise): void {
 				$promise->resolve($rows[0] ?? null);

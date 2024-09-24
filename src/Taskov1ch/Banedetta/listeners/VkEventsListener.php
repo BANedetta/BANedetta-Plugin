@@ -24,7 +24,7 @@ class VkEventsListener
 		}
 
 		$bans = $this->main->getBansManager();
-		$bans->getDataByVkPostId($data["post_id"])->onCompletion(
+		$bans->getDataByPostId("vk", $data["post_id"])->onCompletion(
 			function (?array $row) use ($bans, $data): void {
 				if ((!$row) or $row["confirmed"] !== null) {
 					return;

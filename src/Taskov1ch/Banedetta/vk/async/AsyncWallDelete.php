@@ -14,7 +14,7 @@ class AsyncWallDelete extends AsyncTask
 
 	public function onRun(): void
 	{
-		$request = Internet::getURL(Vk::ENDPOINT . "wall.delete?" . $this->params);
+		Internet::getURL(Vk::ENDPOINT . "wall.delete?" . $this->params);
 	}
 
 }
