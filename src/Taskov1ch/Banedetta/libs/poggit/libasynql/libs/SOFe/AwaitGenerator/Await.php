@@ -22,15 +22,10 @@ declare(strict_types=1);
 
 namespace Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator;
 
-use AssertionError;
 use Closure;
-use Error;
 use Exception;
 use Generator;
-use ReflectionClass;
-use ReflectionGenerator;
 use Throwable;
-use function array_merge;
 use function assert;
 use function count;
 use function is_a;

@@ -1,14 +1,13 @@
 <?php
 
-namespace Taskov1ch\Banedetta\vk\tasks;
+namespace Taskov1ch\Banedetta\vk\longpolling;
 
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;
 use Taskov1ch\Banedetta\vk\events\VkEvents;
-use Taskov1ch\Banedetta\vk\tasks\States;
 use Taskov1ch\Banedetta\vk\Vk;
 
-class AsyncLongPoll extends AsyncTask
+class AsyncLongpoll extends AsyncTask
 {
 	private ?string $server = null;
 	private ?string $key = null;
@@ -27,7 +26,9 @@ class AsyncLongPoll extends AsyncTask
 			"group_id" => $this->group_id,
 			"v" => 5.199
 		];
-		$request = Internet::getURL(Vk::ENDPOINT . "groups.getLongPollServer?" . http_build_query($params))->getBody();
+		$request = Internet::getURL(
+			Vk::ENDPOINT . "groups.getLongPollServer?" . http_build_query($params)
+		)->getBody();
 		$response = json_decode($request, true)["response"];
 		$this->server = $response["server"];
 		$this->key = $response["key"];

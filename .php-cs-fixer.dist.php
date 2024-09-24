@@ -8,7 +8,8 @@ return (new PhpCsFixer\Config())
 		"ordered_imports" => [
 			"sort_algorithm" => "alpha",
 			"imports_order" => ["class", "function", "const"],
-		]
+		],
+		"no_unused_imports" => true
 	])
 	->setIndent("\t")
 	->setFinder(

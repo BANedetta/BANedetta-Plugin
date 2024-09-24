@@ -3,20 +3,22 @@
 namespace Taskov1ch\Banedetta\vk;
 
 use Exception;
+use pocketmine\utils\Config;
 use pocketmine\utils\Internet;
 use Taskov1ch\Banedetta\listeners\VkEventsListener;
 use Taskov1ch\Banedetta\Main;
-use Taskov1ch\Banedetta\vk\managers\EventsManager;
-use Taskov1ch\Banedetta\vk\tasks\LongPoll;
+use Taskov1ch\Banedetta\vk\events\VkEvents;
+use Taskov1ch\Banedetta\vk\longpolling\Longpoll;
 
 class Vk
 {
 	public const ENDPOINT = "https://api.vk.com/method/";
-	private array $data;
+	private array $config;
 
 	public function __construct(private readonly Main $main)
 	{
-		$this->data = $main->getConfig()->get("vk");
+		$main->saveResource("vk.yml");
+		$this->config = (new Config($main->getDataFolder() . "vk.yml"))->getAll();
 	}
 
 	public function check(): bool
@@ -48,37 +50,29 @@ class Vk
 
 	public function initLongPoll(): void
 	{
-		$this->main->getScheduler()->scheduleRepeatingTask(new LongPoll(
-			$this->data["token"],
-			$this->data["group_id"]
-		), 1);
-		EventsManager::getInstance()->registerEvents(new VkEventsListener($this->main), $this->main);
+		VkEvents::setListener(new VkEventsListener($this->main));
+		(new Longpoll($this->config["token"], $this->config["group_id"]))->onRun();
 	}
 
 	public function getAdmins(): array
 	{
-		return $this->data["admins"];
+		return $this->config["admins"];
 	}
 
 	public function getReadyParams(
 		string $type = "waiting",
-		string $nickname = "",
-		string $reason = "",
-		string $by = "",
+		string $message = "",
 		?int $postId = null
 	): string {
 		$params = [
-			"access_token" => $this->data["token"],
+			"access_token" => $this->config["token"],
 			"v" => 5.199,
-			"owner_id" => -$this->data["group_id"],
+			"owner_id" => -$this->config["group_id"],
 			"from_group" => 1,
-			"attachments" => $this->data["posts"][$type]["attachment"],
-			"message" => str_replace(
-				["{nickname}", "{reason}", "{by}"],
-				[$nickname, $reason, $by],
-				$this->data["posts"][$type]["message"]
-			)
+			"attachments" => $this->config["posts"][$type]["attachment"],
+			"message" => $message
 		];
+
 		if ($postId) {
 			$params["post_id"] = $postId;
 		}

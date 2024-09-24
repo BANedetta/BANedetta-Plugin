@@ -2,15 +2,16 @@
 
 namespace Taskov1ch\Banedetta\managers;
 
-use pocketmine\player\Player;
 use pocketmine\promise\Promise;
 use pocketmine\promise\PromiseResolver;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\DataConnector;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\libasynql;
 use Taskov1ch\Banedetta\Main;
-use Taskov1ch\Banedetta\vk\tasks\AsyncWallDelete;
-use Taskov1ch\Banedetta\vk\tasks\AsyncWallEdit;
-use Taskov1ch\Banedetta\vk\tasks\AsyncWallPost;
+use Taskov1ch\Banedetta\translate\Messages;
+use Taskov1ch\Banedetta\translate\Posts;
+use Taskov1ch\Banedetta\vk\async\AsyncWallDelete;
+use Taskov1ch\Banedetta\vk\async\AsyncWallEdit;
+use Taskov1ch\Banedetta\vk\async\AsyncWallPost;
 
 class BansManager
 {
@@ -38,21 +39,20 @@ class BansManager
 					return;
 				}
 
-				$message = str_replace(
-					["{by}", "{reason}"],
-					[$by, $reason],
-					$this->main->getConfig()->get("messages")["for_banned"]["waiting"]
-				);
+				$message = Messages::getReadyKickMessage("confirmed", $row["by"], $row["reason"]);
+				$post = Posts::getReadyPost("waiting", $nickname, $by, $reason);
 				$this->db->executeInsert("bans.add", [
 					"nickname" => $nickname,
 					"by" => $by,
 					"reason" => $reason,
 					"message" => $message
-				], function () use ($nickname, $reason, $by, $message): void {
+				], function () use ($nickname, $post, $message): void {
 					$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallPost(
-						$this->main->getVk()->getReadyParams("waiting", $nickname, $reason, $by),
+						$this->main->getVk()->getReadyParams("waiting", $post),
 						$nickname
 					));
+
+					// tg
 
 					if (
 						($player = $this->main->getServer()->getPlayerExact($nickname)) and
@@ -77,9 +77,9 @@ class BansManager
 
 				$this->db->executeGeneric(
 					"bans.remove",
-					["banned" => $nickname],
+					["nickname" => $nickname],
 					fn (): int => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallDelete(
-						$this->main->getVk()->getReadyParams(postId: $row["postId"])
+						$this->main->getVk()->getReadyParams(postId: $row["post_id"])
 					))
 				);
 			},
@@ -96,22 +96,24 @@ class BansManager
 					return;
 				}
 
+				$post = Posts::getReadyPost("confirmed", $nickname, $row["by"], $row["reason"]);
 				$this->db->executeChange(
 					"bans.confirm",
-					["banned" => $nickname, "confirmed" => true, "message" => str_replace(
-						["{by}", "{reason}"],
-						[$row["by"], $row["reason"]],
-						$this->main->getConfig()->get("messages")["for_banned"]["confirmed"]
-					)],
-					fn () => $this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
-						$this->main->getVk()->getReadyParams(
+					[
+						"nickname" => $nickname, "confirmed" => true,
+						"message" => Messages::getReadyKickMessage(
 							"confirmed",
-							$row["nickname"],
-							$row["reason"],
 							$row["by"],
-							$row["postId"]
+							$row["reason"]
 						)
-					))
+					],
+					function () use ($row, $post): void {
+						$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallEdit(
+							$this->main->getVk()->getReadyParams("confirmed", $post)
+						));
+
+						// tg
+					}
 				);
 			},
 			fn () => null
@@ -127,7 +129,7 @@ class BansManager
 					return;
 				}
 
-				$this->unban($row["banned"]);
+				$this->unban($row["nickname"]);
 				$this->ban(
 					$row["by"],
 					"console",
@@ -148,7 +150,7 @@ class BansManager
 				}
 
 				$this->db->executeChange("bans.setPostId", [
-					"banned" => $nickname,
+					"nickname" => $nickname,
 					"postId" => $postId
 				]);
 			},
@@ -163,7 +165,7 @@ class BansManager
 		$promise = new PromiseResolver();
 		$this->db->executeSelect(
 			"bans.getData",
-			["banned" => $nickname],
+			["nickname" => $nickname],
 			function (array $rows) use ($promise): void {
 				$promise->resolve($rows[0] ?? null);
 			},
@@ -172,12 +174,26 @@ class BansManager
 		return $promise->getPromise();
 	}
 
-	public function getDataByPostId(int $postId): Promise
+	public function getDataByVkPostId(int $postId): Promise
 	{
 		$promise = new PromiseResolver();
 		$this->db->executeSelect(
-			"bans.getDataByPostId",
-			["postId" => $postId],
+			"bans.getDataByVkPostId",
+			["post_id" => $postId],
+			function (array $rows) use ($promise): void {
+				$promise->resolve($rows[0] ?? null);
+			},
+			fn () => $promise->reject()
+		);
+		return $promise->getPromise();
+	}
+
+	public function getDataByTgPostId(int $postId): Promise
+	{
+		$promise = new PromiseResolver();
+		$this->db->executeSelect(
+			"bans.getDataByTgPostId",
+			["post_id" => $postId],
 			function (array $rows) use ($promise): void {
 				$promise->resolve($rows[0] ?? null);
 			},

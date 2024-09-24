@@ -2,29 +2,17 @@
 
 namespace Taskov1ch\Banedetta\vk\events;
 
-use pocketmine\Server;
-use Taskov1ch\Banedetta\vk\managers\EventsManager;
-
-abstract class VkEvent
+class VkEvent
 {
 	protected string $name;
 	protected array $data;
 
-	abstract public function __construct(array $data);
-
 	public function call(): void
 	{
-		foreach (EventsManager::getInstance()->getClosures() as $plugin_name => $closure_data) {
-			$plugin = Server::getInstance()->getPluginManager()->getPlugin($plugin_name);
+		$listener = VkEvents::getListener();
 
-			if (!$plugin or !$plugin->isEnabled()) {
-				EventsManager::getInstance()->removeClosures($plugin_name);
-			}
-
-			if (isset($closure_data[get_called_class()])) {
-				$closure_data[get_called_class()]($this);
-				break;
-			}
+		if (method_exists($listener, $this->name)) {
+			$listener->{$this->name}($this);
 		}
 	}
 

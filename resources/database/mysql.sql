@@ -3,12 +3,13 @@
 -- #{ table
 	-- #{ init
 		CREATE TABLE IF NOT EXISTS bans (
-			postId INT DEFAULT NULL,
+			vk_post_id INT DEFAULT NULL,
+			tg_post_id INT DEFAULT NULL,
 			nickname TEXT,
 			`by` TEXT,
 			reason TEXT,
 			confirmed BOOLEAN DEFAULT NULL,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			message TEXT
 		);
 	-- #}
@@ -20,15 +21,16 @@
 		-- # :by string
 		-- # :reason string
 		-- # :message string
-		INSERT INTO bans(nickname, by, reason, message)
+		INSERT INTO bans(nickname, `by`, reason, message)
 		VALUES (:nickname, :by, :reason, :message);
 	-- #}
 
 	-- #{ confirm
 		-- # :nickname string
 		-- # :confirmed bool
+		-- # :message string
 		UPDATE bans
-		SET confirmed = :confirmed
+		SET confirmed = :confirmed, message = :message
 		WHERE nickname = :nickname;
 	-- #}
 
@@ -44,17 +46,24 @@
 		WHERE nickname = :nickname;
 	-- #}
 
-	-- #{ getDataByPostId
-		-- # :postId int
+	-- #{ getDataByVkPostId
+		-- # :post_id int
 		SELECT * FROM bans
-		WHERE postId = :postId;
+		WHERE post_id = :post_id
 	-- #}
 
-	-- #{ setPostId
+	-- #{ getDataByTgPostId
+		-- # :post_id int
+		SELECT * FROM bans
+		WHERE post_id = :post_id
+	-- #}
+
+	-- #{ setPostIds
 		-- # :nickname string
-		-- # :postId int
+		-- # :vk_post_id int
+		-- # :tg_post_id int
 		UPDATE bans
-		SET postId = :postId
+		SET vk_post_id = :vk_post_id, tg_post_id = :tg_post_id
 		WHERE nickname = :nickname;
 	-- #}
 
@@ -64,10 +73,4 @@
 		WHERE nickname = :nickname;
 	-- #}
 
-	-- #{ getAllData
-		-- # :page int
-		SELECT *
-		FROM bans
-		LIMIT 30 OFFSET (:page - 1) * 30;
-	-- #}
 -- #}

@@ -3,7 +3,8 @@
 -- #{ table
 	-- #{ init
 		CREATE TABLE IF NOT EXISTS bans (
-			postId INTEGER DEFAULT NULL,
+			vk_post_id INTEGER DEFAULT NULL,
+			tg_post_id INTEGER DEFAULT NULL,
 			nickname TEXT,
 			by TEXT,
 			reason TEXT,
@@ -29,7 +30,7 @@
 		-- # :confirmed bool
 		-- # :message string
 		UPDATE bans
-		SET confirmed = :confirmed
+		SET confirmed = :confirmed, message = :message
 		WHERE nickname = :nickname;
 	-- #}
 
@@ -45,17 +46,24 @@
 		WHERE nickname = :nickname
 	-- #}
 
-	-- #{ getDataByPostId
-		-- # :postId int
+	-- #{ getDataByVkPostId
+		-- # :post_id int
 		SELECT * FROM bans
-		WHERE postId = :postId
+		WHERE post_id = :post_id
 	-- #}
 
-	-- #{ setPostId
+	-- #{ getDataByTgPostId
+		-- # :post_id int
+		SELECT * FROM bans
+		WHERE post_id = :post_id
+	-- #}
+
+	-- #{ setPostIds
 		-- # :nickname string
-		-- # :postId int
+		-- # :vk_post_id int
+		-- # :tg_post_id int
 		UPDATE bans
-		SET postId = :postId
+		SET vk_post_id = :vk_post_id, tg_post_id = :tg_post_id
 		WHERE nickname = :nickname;
 	-- #}
 
@@ -65,10 +73,4 @@
 		WHERE nickname = :nickname;
 	-- #}
 
-	-- #{ getAllData
-		-- # :page int
-		SELECT *
-		FROM bans
-		LIMIT 30 OFFSET (:page - 1) * 30;
-	-- #}
 -- #}

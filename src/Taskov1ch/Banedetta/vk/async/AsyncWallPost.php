@@ -1,6 +1,6 @@
 <?php
 
-namespace Taskov1ch\Banedetta\vk\tasks;
+namespace Taskov1ch\Banedetta\vk\async;
 
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\Internet;

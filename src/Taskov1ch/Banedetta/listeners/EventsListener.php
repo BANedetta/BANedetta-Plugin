@@ -2,28 +2,19 @@
 
 namespace Taskov1ch\Banedetta\listeners;
 
-use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerPreLoginEvent;
-use Taskov1ch\Banedetta\Main;
-
-class EventsListener implements Listener
+class EventsListener
 {
-	public function __construct(private readonly Main $main)
+
+	public static EventsListener $self;
+
+	public function __construct()
 	{
+		self::$self = $this;
 	}
 
-	public function onJoin(PlayerPreLoginEvent $event): void
+	public function getInstance(): self
 	{
-		$nickname = $event->getPlayerInfo()->getUsername();
-		$bans = $this->main->getBansManager();
-		$bans->getData($nickname)->onCompletion(
-			function (?array $row) use ($event): void {
-				if ($row) {
-					$event->setKickFlag(PlayerPreLoginEvent::KICK_FLAG_BANNED, $row["message"]);
-				}
-			},
-			fn (): null => null
-		);
+		return self::$self;
 	}
 
 }

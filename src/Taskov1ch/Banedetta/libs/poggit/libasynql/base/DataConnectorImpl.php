@@ -36,7 +36,6 @@ use Taskov1ch\Banedetta\libs\poggit\libasynql\GenericStatement;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\libasynql;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\libs\SOFe\AwaitGenerator\Await;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlChangeResult;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlColumnInfo;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlInsertResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\result\SqlSelectResult;
 use Taskov1ch\Banedetta\libs\poggit\libasynql\SqlError;
@@ -49,7 +48,6 @@ use function count;
 use function is_resource;
 use function json_encode;
 use function str_replace;
-use function usleep;
 
 class DataConnectorImpl implements DataConnector
 {
