@@ -16,7 +16,7 @@ class Main extends PluginBase
 
 	public function onEnable(): void
 	{
-		if (!$this->initVk()) {
+		if ((!$this->initVk()) or (!$this->initTg())) {
 			return;
 		}
 
@@ -38,6 +38,12 @@ class Main extends PluginBase
 
 		$this->getLogger()->info("Токен успешно прошел проверку!");
 		$vk->initLongPoll();
+		return true;
+	}
+
+	private function initTg(): bool
+	{
+		// soon
 		return true;
 	}
 
