@@ -4,7 +4,9 @@ namespace Taskov1ch\Banedetta\listeners;
 
 use pocketmine\utils\SingletonTrait;
 use Taskov1ch\Banedetta\Main;
+use Taskov1ch\Banedetta\provider\libasynql;
 use Taskov1ch\Banedetta\vk\events\VkEvent;
+use Taskov1ch\Banedetta\vk\Vk;
 
 class VkEventsListener
 {
@@ -19,12 +21,12 @@ class VkEventsListener
 	{
 		$data = $event->getUpdates();
 
-		if (!$this->main->getVk()->isAdmin($data["from_id"])) {
+		if (!Vk::getInstance()->isAdmin($data["from_id"])) {
 			return;
 		}
 
 		$bans = $this->main->getBansManager();
-		$bans->getDataByPostId("vk", $data["post_id"])->onCompletion(
+		libasynql::getInstance()->getDataByPostId("vk", $data["post_id"])->onCompletion(
 			function (?array $row) use ($bans, $data): void {
 				if ((!$row) or $row["confirmed"] !== null) {
 					return;

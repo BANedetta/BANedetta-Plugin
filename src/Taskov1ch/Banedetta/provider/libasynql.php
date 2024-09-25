@@ -18,7 +18,8 @@ class libasynql
 	public function init(Main $main): void
 	{
 		$this->db = DataBase::create(
-			$main, $main->getConfig()->get("databases"),
+			$main,
+			$main->getConfig()->get("databases"),
 			[
 				"mysql" => "database/mysql.sql",
 				"sqlite" => "database/sqlite.sql"
@@ -29,40 +30,29 @@ class libasynql
 
 	public function ban(string $nickname, string $by, string $reason, ?callable $callback = null): void
 	{
-		$this->db->executeInsert("bans.add", compact("nickname", "by", "reason"), $callback);
+		$this->db->executeGeneric("bans.add", compact("nickname", "by", "reason"), $callback);
 	}
 
 	public function unban(string $nickname, ?callable $callback = null): void
 	{
-		$this->db->executeInsert("bans.remove", compact("nickname"), $callback);
+		$this->db->executeGeneric("bans.remove", compact("nickname"), $callback);
 	}
 
 	public function confirm(string $nickname, bool $confirmed, ?callable $callback = null): void
 	{
-		$this->getData(strtolower($nickname))->onCompletion(
-			fn(array $rows) => $this->db->executeChange("bans.confirm", compact("nickname", "confirmed"), $callback),
-			fn() => null
-		);
+		$this->db->executeChange("bans.confirm", compact("nickname", "confirmed"), $callback);
 	}
 
 	public function setKickScreen(string $nickname, string $kick_screen, ?callable $callback = null): void
 	{
-		$this->getData(strtolower($nickname))->onCompletion(
-			fn(array $row) => $this->db->executeChange("bans.setKickScreen", compact("nickname", "kick_screen"), $callback),
-			fn() => null
-		);
+		$this->db->executeChange("bans.setKickScreen", compact("nickname", "kick_screen"), $callback);
 	}
 
 	public function setPostId(string $platform, string $nickname, int $post_id): void
 	{
 		$nickname = strtolower($nickname);
-		$this->getData($nickname)->onCompletion(
-			function (?array $row) use ($nickname, $post_id, $platform): void {
-				$query = $platform === "tg" ? "setTgPostId" : "setVkPostId";
-				$this->db->executeChange("bans.$query", compact("nickname", "post_id"));
-			},
-			fn () => null
-		);
+		$query = $platform === "tg" ? "setTgPostId" : "setVkPostId";
+		$this->db->executeChange("bans.$query", compact("nickname", "post_id"));
 	}
 
 	public function getData(string $nickname): Promise

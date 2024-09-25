@@ -7,12 +7,7 @@ use Taskov1ch\Banedetta\Main;
 class Posts
 {
 
-	public static function getReadyPost(
-		string $type,
-		string $nickname,
-		string $by,
-		string $reason
-	): string {
+	public static function getReadyPost(string $type, string $nickname, string $by, string $reason): string {
 		return str_replace(
 			["{banned}", "{by}", "{reason}"],
 			[$nickname, $by, $reason],

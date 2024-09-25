@@ -7,7 +7,7 @@ use Taskov1ch\Banedetta\Main;
 class Messages
 {
 
-	public static function getReadyKickMessage(string $type, string $by = "", string $reason = ""): string
+	public static function getKickScreen(string $type, string $by = "", string $reason = ""): string
 	{
 		return str_replace(
 			["{by}", "{reason}"],

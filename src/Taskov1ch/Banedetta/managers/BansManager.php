@@ -2,9 +2,6 @@
 
 namespace Taskov1ch\Banedetta\managers;
 
-use pocketmine\promise\Promise;
-use pocketmine\promise\PromiseResolver;
-use Taskov1ch\Banedetta\libs\poggit\libasynql\DataConnector;
 use Taskov1ch\Banedetta\Main;
 use Taskov1ch\Banedetta\provider\libasynql;
 use Taskov1ch\Banedetta\translate\Messages;
@@ -30,11 +27,11 @@ class BansManager
 		$by = strtolower($by);
 		$this->db->getData($nickname)->onCompletion(
 			function (array $row) use ($nickname, $by, $reason, $abuse): void {
-				$kick_screen = $abuse ? Messages::getReadyKickMessage("abuse")
-					: Messages::getReadyKickMessage("waiting", $by, $reason);
+				$kick_screen = $abuse ? Messages::getKickScreen("abuse")
+					: Messages::getKickScreen("waiting", $by, $reason);
 				$post = $abuse ? "" : Posts::getReadyPost("waiting", $nickname, $by, $reason);
-				$this->db->ban($nickname, $by, $reason, function() use($by, $nickname, $post, $kick_screen){
-					if($by !== "console"){
+				$this->db->ban($nickname, $by, $reason, function () use ($by, $nickname, $post, $kick_screen) {
+					if ($by !== "console") {
 						$this->main->getServer()->getAsyncPool()->submitTask(new AsyncWallPost(
 							Vk::getInstance()->getReadyParams("waiting", $post),
 							$nickname
@@ -58,7 +55,8 @@ class BansManager
 		$nickname = strtolower($nickname);
 		$this->db->getData($nickname)->onCompletion(
 			function (array $row) use ($nickname, $deletePost): void {
-				$this->db->unban($nickname,
+				$this->db->unban(
+					$nickname,
 					$deletePost ? fn () => $this->main->getServer()->getAsyncPool()->submitTask(
 						new AsyncWallDelete(Vk::getInstance()->getReadyParams(postId: $row["vk_post_id"]))
 					) : null
@@ -74,8 +72,8 @@ class BansManager
 		$this->db->getData($nickname)->onCompletion(
 			function (array $row) use ($nickname): void {
 				$post = Posts::getReadyPost("confirmed", $nickname, $row["by"], $row["reason"]);
-				$kick_screen = Messages::getReadyKickMessage("confirmed", $row["by"], $row["reason"]);
-				$this->db->confirm($nickname, true, function() use($row, $post, $nickname, $kick_screen) {
+				$kick_screen = Messages::getKickScreen("confirmed", $row["by"], $row["reason"]);
+				$this->db->confirm($nickname, true, function () use ($row, $post, $nickname, $kick_screen) {
 					$this->main->getServer()->getAsyncPool()->submitTask(
 						new AsyncWallEdit(Vk::getInstance()->getReadyParams("confirmed", $post, $row["vk_post_id"]))
 					);
