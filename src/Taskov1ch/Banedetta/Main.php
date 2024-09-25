@@ -3,20 +3,16 @@
 namespace Taskov1ch\Banedetta;
 
 use pocketmine\plugin\PluginBase;
+use pocketmine\utils\SingletonTrait;
 use Taskov1ch\Banedetta\listeners\GameEventsListener;
 use Taskov1ch\Banedetta\managers\BansManager;
 use Taskov1ch\Banedetta\vk\Vk;
 
 class Main extends PluginBase
 {
-	private static Main $instance;
-	private BansManager $bansManager;
-	private Vk $vk;
+	use SingletonTrait;
 
-	public function onLoad(): void
-	{
-		self::$instance = $this;
-	}
+	private BansManager $bansManager;
 
 	public function onEnable(): void
 	{
@@ -27,36 +23,27 @@ class Main extends PluginBase
 		$this->bansManager = new BansManager($this);
 		$this->getServer()->getPluginManager()->registerEvents(new GameEventsListener($this), $this);
 		$this->saveDefaultConfig();
-		$this->bansManager->ban("tasl", "test", "lol");
-		$this->bansManager->ban("Tester2", "test", "lol");
 	}
 
 	private function initVk(): bool
 	{
-		$this->vk = new Vk($this);
-		$this->getLogger()->warning("Проверка токена...");
-		if (!$this->vk->check()) {
+		$vk = Vk::getInstance();
+		$vk->init($this);
+		$this->getLogger()->warning("Проверка VK токена...");
+
+		if (!$vk->check()) {
 			$this->getLogger()->error("Не удалось проверить токен. Плагин будет не доступен");
 			return false;
 		}
+
 		$this->getLogger()->info("Токен успешно прошел проверку!");
-		$this->vk->initLongPoll();
+		$vk->initLongPoll();
 		return true;
 	}
 
 	public function getBansManager(): BansManager
 	{
 		return $this->bansManager;
-	}
-
-	public function getVk(): Vk
-	{
-		return $this->vk;
-	}
-
-	public static function getInstance(): self
-	{
-		return self::$instance;
 	}
 
 }

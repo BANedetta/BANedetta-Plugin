@@ -10,7 +10,7 @@
 			reason TEXT,
 			confirmed INTEGER CHECK (confirmed IN (0, 1)) DEFAULT NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			message TEXT
+			kick_screen TEXT DEFAULT NULL
 		);
 	-- #}
 -- #}
@@ -20,17 +20,23 @@
 		-- # :nickname string
 		-- # :by string
 		-- # :reason string
-		-- # :message string
-		INSERT INTO bans(nickname, by, reason, message)
-		VALUES (:nickname, :by, :reason, :message);
+		INSERT INTO bans(nickname, by, reason)
+		VALUES (:nickname, :by, :reason);
 	-- #}
 
 	-- #{ confirm
 		-- # :nickname string
 		-- # :confirmed bool
-		-- # :message string
 		UPDATE bans
-		SET confirmed = :confirmed, message = :message
+		SET confirmed = :confirmed
+		WHERE nickname = :nickname;
+	-- #}
+
+	-- #{ setKickScreen
+		-- # :nickname string
+		-- # :kick_screen string
+		UPDATE bans
+		SET kick_screen = :kick_screen
 		WHERE nickname = :nickname;
 	-- #}
 

@@ -5,6 +5,7 @@ namespace Taskov1ch\Banedetta\vk;
 use Exception;
 use pocketmine\utils\Config;
 use pocketmine\utils\Internet;
+use pocketmine\utils\SingletonTrait;
 use Taskov1ch\Banedetta\listeners\VkEventsListener;
 use Taskov1ch\Banedetta\Main;
 use Taskov1ch\Banedetta\vk\events\VkEvents;
@@ -12,10 +13,12 @@ use Taskov1ch\Banedetta\vk\longpolling\Longpoll;
 
 class Vk
 {
+	use SingletonTrait;
+
 	public const ENDPOINT = "https://api.vk.com/method/";
 	private array $config;
 
-	public function __construct(private readonly Main $main)
+	public function init(Main $main): void
 	{
 		$main->saveResource("vk.yml");
 		$this->config = (new Config($main->getDataFolder() . "vk.yml"))->getAll();
@@ -27,6 +30,7 @@ class Vk
 			$postId = null;
 
 			foreach (["wall.post", "wall.edit", "wall.delete"] as $method) {
+				Main::getInstance()->getLogger()->info("Проверка $method...");
 				$params = $this->getReadyParams(postId: $postId);
 				$response = Internet::getURL(self::ENDPOINT . "$method?$params");
 
@@ -35,23 +39,18 @@ class Vk
 				}
 
 				$responseData = json_decode($response->getBody(), true);
-
-				// if (!isset($responseData["response"])) {
-				// 	return false;
-				// }
-
 				$postId = $responseData["response"]["post_id"] ?? $postId;
+				sleep(1);
 			}
 			return true;
 		} catch (Exception $e) {
-			// throw $e;
 			return false;
 		}
 	}
 
 	public function initLongPoll(): void
 	{
-		VkEvents::setListener(new VkEventsListener($this->main));
+		VkEvents::setListener(new VkEventsListener(Main::getInstance()));
 		(new Longpoll($this->config["token"], $this->config["group_id"]))->onRun();
 	}
 
