@@ -1,64 +1,37 @@
-posts:
-  waiting: |-
-    Игрок {banned} был заблокирован игроком {by}
-    Причина: {reason}.
-    Ожидается доказательства в течение 6 часов, в ином случае ваш аккаунт будет заблокирован.
+# Administrators who cannot be banned
+admins:
+  - tynaevbe
+  - taskov1ch
 
-  confirmed: |-
-    Игрок {banned} был заблокирован игроком {by}
-    Причина: {reason}.
-    Подтверждено!
+messages:  # Section with messages for different scenarios.
+  for_banned:  # Messages sent to banned players.
+    screen: |-  # Kick screen
+      You have been banned by player {%by}.
+      Reason: {%reason}.
 
-  denied: |-
-    Игрок {banned} был заблокирован игроком {by}
-    Причина: {reason}.
-    Не подтверждено! {banned} был разблокирован, а {by} заблокирован.
-
-  abuse: |-
-    Вы были навсегда заблокированы за злоупотребление командой блокировки.
-
-messages:
-  for_banned:
-    waiting: |-
-      Вы были заблокированы игроком {by}.
-      Причина: {reason}.
-      На данный момент ваш бан временный, и ожидается подтверждения модераторов.
-
-    confirmed: |-
-      Вы были заблокированы игроком {by}.
-      Причина: {reason}.
-      Ваша блокировка была подверждена модераторами, увы.
-      Аккаунт заблокирован навсегда (
-
-  for_sender:
+  for_sender:  # Messages for the player using the ban command.
     command:
-      help: "Использование: /bban <игрок> <причина>"
-      is_op: "Тот кого бы пытаесь забанить, оператор сервера!"
-      success: |-
-        Вы заблокировали игрока {banned} по причине: {reason}
-        Вам необходимо предоставить доказательства в сообществе ВК, в ином случае вам аккаунт будет заблокирован.
-    abuse: |-
-      Вы были навсегда заблокированы за злоупотребление командой блокировки.
+      help: "Usage: /bban <player> <reason>"  # Instructions for using the ban command.
+      is_op: "The person you are trying to ban is an ADMINISTRATOR!"  # Error if a player tries to ban an admin.
+      success: |-  # Message on successful player ban.
+        You have banned player {%banned} for the reason: {%reason}.
+        You must provide evidence in the VKontakte community or Telegram channel, otherwise, your account will be banned!
+        You have 6 hours to provide evidence.
 
-databases:
-  # Тип базы данных. Поддерживаются "sqlite" и "mysql".
-  type: sqlite
+    abuse: |-  # Message for abuse of the ban command.
+      You have been permanently banned for abusing the ban command.
 
-  # Изменяйте эти настройки только в случае выбора "sqlite".
-  sqlite:
-    # Имя файла базы данных в папке данных плагина.
-    # Вы также можете указать абсолютный путь.
-    file: database.db
-
-  # Изменяйте эти настройки только в случае выбора "mysql".
+databases:  # Database settings.
+  type: mysql  # Type of database. Here it's only MySQL.
   mysql:
-    host: "127.0.0.1:3306"
+    host: "127.0.0.1:3306"  # Host and port for the MySQL database.
+    username: root  # Username for the database connection.
+    password: qwerty  # Password for the database connection.
+    schema: banedetta  # Name of the database schema (table set).
 
-    # Избегайте использования пользователя "root" по соображениям безопасности.
-    username: root
-    password: qwerty
-    schema: banedetta
+  worker-limit: 2  # Limit of workers that can simultaneously process tasks.
 
-  # Максимальное количество одновременных SQL-запросов
-  # Рекомендуется: 1 для sqlite, 2 для MySQL. Вы можете дополнительно увеличить это значение, если ваше соединение MySQL очень медленное.
-  worker-limit: 1
+# Enter a list of commands that will be executed on behalf of the console.
+# If anything, this is a reward for the players who actually banned the violator and presented evidence.
+rewards:
+  - addbalance {%nickname} 1000

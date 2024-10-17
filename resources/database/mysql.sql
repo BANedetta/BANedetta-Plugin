@@ -2,88 +2,46 @@
 
 -- #{ table
 	-- #{ init
-		CREATE TABLE IF NOT EXISTS bans (
-			vk_post_id INT DEFAULT NULL,
-			tg_post_id INT DEFAULT NULL,
-			nickname TEXT,
-			`by` TEXT,
+		CREATE TABLE IF NOT EXISTS bans_data (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			banned VARCHAR(255),
+			`by` VARCHAR(255),
 			reason TEXT,
-			confirmed BOOLEAN DEFAULT NULL,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			kick_screen TEXT DEFAULT NULL
+			confirmed BOOL,
+			status VARCHAR(9) DEFAULT "waiting",
+			unbanned BOOL DEFAULT FALSE,
+			vk_post INT,
+			tg_post INT,
+			tg_post_c INT,
+			created DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	-- #}
 -- #}
 
 -- #{ bans
-	-- #{ add
+	-- #{ ban
 		-- # :nickname string
 		-- # :by string
 		-- # :reason string
-		INSERT INTO bans(nickname, by, reason)
-		VALUES (:nickname, :by, :reason);
-	-- #}
-
-	-- #{ confirm
-		-- # :nickname string
 		-- # :confirmed bool
-		UPDATE bans
-		SET confirmed = :confirmed
-		WHERE nickname = :nickname;
-	-- #}
-
-	-- #{ setKickScreen
-		-- # :nickname string
-		-- # :kick_screen string
-		UPDATE bans
-		SET kick_screen = :kick_screen
-		WHERE nickname = :nickname;
-	-- #}
-
-	-- #{ getData
-		-- # :nickname string
-		SELECT * FROM bans
-		WHERE nickname = :nickname
+		INSERT INTO bans_data(banned, by, reason, confirmed)
+		VALUES (:nickname, :by, :reason, :confirmed);
 	-- #}
 
 	-- #{ getDataByNickname
 		-- # :nickname string
-		SELECT * FROM bans
-		WHERE nickname = :nickname
+		SELECT * FROM bans_data
+		WHERE banned = :nickname
+		ORDER BY id DESC LIMIT 1;
 	-- #}
 
-	-- #{ getDataByVkPostId
-		-- # :post_id int
-		SELECT * FROM bans
-		WHERE vk_post_id = :post_id
-	-- #}
-
-	-- #{ getDataByTgPostId
-		-- # :post_id int
-		SELECT * FROM bans
-		WHERE tg_post_id = :post_id
-	-- #}
-
-	-- #{ setVkPostId
+	-- #{ unban
 		-- # :nickname string
-		-- # :post_id int
-		UPDATE bans
-		SET vk_post_id = :post_id
-		WHERE nickname = :nickname;
-	-- #}
-
-	-- #{ setTgPostId
-		-- # :nickname string
-		-- # :post_id int
-		UPDATE bans
-		SET tg_post_id = :post_id
-		WHERE nickname = :nickname;
-	-- #}
-
-	-- #{ remove
-		-- # :nickname string
-		DELETE FROM bans
-		WHERE nickname = :nickname;
+		UPDATE bans_data
+		SET unbanned = TRUE
+		WHERE banned = :nickname
+		ORDER BY id DESC
+		LIMIT 1;
 	-- #}
 
 -- #}

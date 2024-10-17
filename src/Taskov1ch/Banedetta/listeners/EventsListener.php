@@ -2,19 +2,33 @@
 
 namespace Taskov1ch\Banedetta\listeners;
 
-class EventsListener
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\lang\Translatable;
+use Taskov1ch\Banedetta\Main;
+use Taskov1ch\Banedetta\provider\libasynql;
+
+class EventsListener implements Listener
 {
 
-	public static EventsListener $self;
+	public function __construct(private Main $main)
+	{}
 
-	public function __construct()
+	public function onJoin(PlayerJoinEvent $event): void
 	{
-		self::$self = $this;
-	}
-
-	public function getInstance(): self
-	{
-		return self::$self;
+		$player = $event->getPlayer();
+		libasynql::getInstance()->getDataByNickname($player->getName())->onCompletion(
+			function (?array $row) use ($player)
+			{
+				if ($row) {
+					if (!$row["unbanned"]) {
+						$kickScreen = new Translatable($this->main->getConfig()->get("messages")["for_banned"]
+							["screen"], ["by" => $row["by"], "reason" => $row["reason"]]);
+						$player->disconnect($kickScreen);
+					}
+				}
+			}, fn() => null
+		);
 	}
 
 }
