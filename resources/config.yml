@@ -9,9 +9,10 @@ messages:  # Section with messages for different scenarios.
       Reason: {%reason}.
 
   for_sender:  # Messages for the player using the ban command.
-    command:
+    ban_command:
       usage: "Usage: /bban <player> <reason>"  # Instructions for using the ban command.
       is_op: "The person you are trying to ban is an ADMINISTRATOR!"  # Error if a player tries to ban an admin.
+      long_reason: "The reason for the ban is too long."  # The message if the reason crosses the length of 200 characters.
 
       # If the ban was from the administration, then the posts will not be created,
       # and they themselves will not need to provide evidence.
@@ -20,6 +21,13 @@ messages:  # Section with messages for different scenarios.
         You must provide evidence in the VKontakte community or Telegram channel, otherwise, your account will be banned!
         You have 6 hours to provide evidence.
 
+    # WARNING! When you unban, posts from VK or TG will not be deleted!
+    # Not because it's difficult, but just because of my laziness )
+    # I will definitely fix it in the future.
+    unban_command:
+      usage: "Usage: /bban <player> <reason>"  # Instructions for using the unban command.
+      not_banned: "This player is not banned."  # A message when trying to unban a non-banned player.
+      success: "The player has been successfully unbanned."  # # Message on successful player unban.
 
     abuse: |-  # Message for abuse of the ban command.
       You have been permanently banned for abusing the ban command.

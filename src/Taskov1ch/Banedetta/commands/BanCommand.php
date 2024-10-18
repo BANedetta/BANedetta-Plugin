@@ -11,18 +11,16 @@ use Taskov1ch\Banedetta\Main;
 class BanCommand extends Command
 {
 
-	public function __construct(
-		private Main $main, string $command, string $description,
-		string $usage, string $permission
-	) {
-		parent::__construct($command, $description, $usage);
+	public function __construct(private Main $main, string $command, string $description, string $permission)
+	{
+		parent::__construct($command, $description);
 		$this->setPermission($permission);
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args): bool
 	{
 		$config = $this->main->getConfig()->getAll();
-		$messages = $config["messages"]["for_sender"];
+		$messages = $config["messages"]["for_sender"]["ban_command"];
 
 		if (count($args) < 2) {
 			$sender->sendMessage($messages["usage"]);
@@ -31,16 +29,18 @@ class BanCommand extends Command
 
 		$target = strtolower(array_shift($args));
 		$reason = implode(" ", $args);
+
+		if (strlen($reason) > 200) {
+			$sender->sendMessage($messages["long_reason"]);
+			return false;
+		}
+
 		$by = strtolower($sender->getName());
-		$admin = false;
+		$admin = $sender instanceof ConsoleCommandSender or in_array($by, $config["admins"]);
 
-		if (in_array($target, $config["admins"])) {
-			if (!($sender instanceof ConsoleCommandSender or in_array($by, $config["admins"]))) {
-				$sender->sendMessage($messages["is_op"]);
-				return false;
-			}
-
-			$admin = true;
+		if (in_array($target, $config["admins"]) and !$admin) {
+			$sender->sendMessage($messages["is_op"]);
+			return false;
 		}
 
 		$this->main->getBansManager()->ban($target, $by, $reason, $admin);

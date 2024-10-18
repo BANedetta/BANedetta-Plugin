@@ -5,6 +5,7 @@ namespace Taskov1ch\Banedetta\listeners;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\lang\Translatable;
+use pocketmine\scheduler\ClosureTask;
 use Taskov1ch\Banedetta\Main;
 
 class EventsListener implements Listener
@@ -23,7 +24,9 @@ class EventsListener implements Listener
 					if (!$row["unbanned"]) {
 						$kickScreen = new Translatable($this->main->getConfig()->get("messages")["for_banned"]
 							["screen"], ["by" => $row["by"], "reason" => $row["reason"]]);
-						$player->disconnect($kickScreen);
+						$this->main->getScheduler()->scheduleDelayedTask(new ClosureTask(
+							fn() => $player->disconnect($kickScreen)
+						), 5);
 					}
 				}
 			}, fn() => null

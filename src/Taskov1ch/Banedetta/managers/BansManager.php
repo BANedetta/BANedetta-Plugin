@@ -11,7 +11,6 @@ class BansManager extends libasynql
 
 	public function __construct(private Main $main)
 	{
-		var_dump(1);
 		parent::init($main);
 	}
 

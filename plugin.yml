@@ -6,3 +6,5 @@ main: Taskov1ch\Banedetta\Main
 permissions:
   banedetta.ban:
     default: op
+  banedetta.unban:
+    default: op

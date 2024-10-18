@@ -17,7 +17,6 @@ class libasynql
 
 	public function init(Main $main): void
 	{
-		var_dump(1);
 		$this->db = DataBase::create(
 			$main,
 			$main->getConfig()->get("databases"),
