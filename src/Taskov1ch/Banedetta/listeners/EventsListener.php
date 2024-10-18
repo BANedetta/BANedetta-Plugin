@@ -17,7 +17,7 @@ class EventsListener implements Listener
 	public function onJoin(PlayerJoinEvent $event): void
 	{
 		$player = $event->getPlayer();
-		libasynql::getInstance()->getDataByNickname($player->getName())->onCompletion(
+		libasynql::getInstance()->getLastDataByNickname($player->getName())->onCompletion(
 			function (?array $row) use ($player)
 			{
 				if ($row) {

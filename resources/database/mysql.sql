@@ -7,12 +7,13 @@
 			banned VARCHAR(255),
 			`by` VARCHAR(255),
 			reason TEXT,
-			confirmed BOOL,
+			confirmed BOOLEAN,
 			status VARCHAR(9) DEFAULT "waiting",
-			unbanned BOOL DEFAULT FALSE,
+			unbanned BOOLEAN DEFAULT FALSE,
 			vk_post INT,
 			tg_post INT,
 			tg_post_c INT,
+			`trigger` BOOLEAN,
 			created DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	-- #}
@@ -24,24 +25,34 @@
 		-- # :by string
 		-- # :reason string
 		-- # :confirmed bool
-		INSERT INTO bans_data(banned, by, reason, confirmed)
+		INSERT INTO bans_data(banned, `by`, reason, confirmed)
 		VALUES (:nickname, :by, :reason, :confirmed);
 	-- #}
 
-	-- #{ getDataByNickname
+	-- #{ unban
+		-- # :id int
+		UPDATE bans_data
+		SET unbanned = 1
+		WHERE id = :id;
+	-- #}
+
+	-- #{ getLastDataByNickname
 		-- # :nickname string
 		SELECT * FROM bans_data
 		WHERE banned = :nickname
 		ORDER BY id DESC LIMIT 1;
 	-- #}
 
-	-- #{ unban
-		-- # :nickname string
+	-- #{ getNotTriggeredBans
+		SELECT * FROM bans_data
+		WHERE `trigger` IS NULL AND status != "waiting" AND confirmed IS NULL;
+	-- #}
+
+	-- #{ trigger
+		-- # :id int
 		UPDATE bans_data
-		SET unbanned = TRUE
-		WHERE banned = :nickname
-		ORDER BY id DESC
-		LIMIT 1;
+		SET `trigger` = TRUE
+		WHERE id = :id;
 	-- #}
 
 -- #}

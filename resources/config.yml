@@ -21,6 +21,9 @@ messages:  # Section with messages for different scenarios.
     abuse: |-  # Message for abuse of the ban command.
       You have been permanently banned for abusing the ban command.
 
+    awarded: |- # A message for the hero (And I'm still waiting for a hero...)
+      You have successfully banned the violator and presented evidence, you have been given a reward!
+
 databases:  # Database settings.
   type: mysql  # Type of database. Here it's only MySQL.
   mysql:
@@ -34,4 +37,4 @@ databases:  # Database settings.
 # Enter a list of commands that will be executed on behalf of the console.
 # If anything, this is a reward for the players who actually banned the violator and presented evidence.
 rewards:
-  - addbalance {%nickname} 1000
+  - kick {%player} LOL :)

@@ -2,6 +2,7 @@
 
 namespace Taskov1ch\Banedetta\managers;
 
+use pocketmine\console\ConsoleCommandSender;
 use pocketmine\lang\Translatable;
 use Taskov1ch\Banedetta\Main;
 use Taskov1ch\Banedetta\provider\libasynql;
@@ -34,6 +35,29 @@ class BansManager
 	{
 		$nickname = strtolower($nickname);
 		$this->db->unban($nickname);
+	}
+
+	public function award(array $data): void
+	{
+		$player = $this->main->getServer()->getPlayerExact($data["by"]);
+
+		if ($player and $player->isOnline()) {
+			$server = $this->main->getServer();
+			$config = $this->main->getConfig();
+
+			foreach ($config->get("rewards") as $command) {
+				$command = str_replace("{%player}", $data["by"], $command);
+				$server->dispatchCommand(new ConsoleCommandSender($server, $server->getLanguage()), $command);
+			}
+
+			$player->sendMessage($config->get("messages")["for_sender"]["awarded"]);
+			$this->trigger($data["id"]);
+		}
+	}
+
+	public function trigger(int $id): void
+	{
+		$this->db->trigger($id);
 	}
 
 }
