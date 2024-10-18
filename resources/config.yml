@@ -10,12 +10,16 @@ messages:  # Section with messages for different scenarios.
 
   for_sender:  # Messages for the player using the ban command.
     command:
-      help: "Usage: /bban <player> <reason>"  # Instructions for using the ban command.
+      usage: "Usage: /bban <player> <reason>"  # Instructions for using the ban command.
       is_op: "The person you are trying to ban is an ADMINISTRATOR!"  # Error if a player tries to ban an admin.
+
+      # If the ban was from the administration, then the posts will not be created,
+      # and they themselves will not need to provide evidence.
       success: |-  # Message on successful player ban.
         You have banned player {%banned} for the reason: {%reason}.
         You must provide evidence in the VKontakte community or Telegram channel, otherwise, your account will be banned!
         You have 6 hours to provide evidence.
+
 
     abuse: |-  # Message for abuse of the ban command.
       You have been permanently banned for abusing the ban command.

@@ -1,6 +1,8 @@
----
 name: Banedetta
 version: 0.1-beta
 api: 5.0.0
 main: Taskov1ch\Banedetta\Main
-...
+
+permissions:
+  banedetta.ban:
+    default: op
