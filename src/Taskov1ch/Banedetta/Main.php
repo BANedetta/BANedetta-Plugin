@@ -14,7 +14,7 @@ class Main extends PluginBase
 {
 	use SingletonTrait;
 
-	public BansManager $bansManager;
+	private BansManager $bansManager;
 
 	public function onEnable(): void
 	{

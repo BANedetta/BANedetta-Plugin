@@ -45,7 +45,7 @@
 
 	-- #{ getNotTriggeredBans
 		SELECT * FROM bans_data
-		WHERE `trigger` IS NULL AND confirmed IS NULL;
+		WHERE `trigger` IS NULL AND confirmed IS NOT TRUE;
 	-- #}
 
 	-- #{ setStatus
