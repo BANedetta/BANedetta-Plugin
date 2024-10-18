@@ -6,7 +6,6 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\lang\Translatable;
 use Taskov1ch\Banedetta\Main;
-use Taskov1ch\Banedetta\provider\libasynql;
 
 class EventsListener implements Listener
 {
@@ -17,7 +16,7 @@ class EventsListener implements Listener
 	public function onJoin(PlayerJoinEvent $event): void
 	{
 		$player = $event->getPlayer();
-		libasynql::getInstance()->getLastDataByNickname($player->getName())->onCompletion(
+		$this->main->getBansManager()->getLastDataByNickname($player->getName())->onCompletion(
 			function (?array $row) use ($player)
 			{
 				if ($row) {

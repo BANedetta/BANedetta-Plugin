@@ -17,6 +17,7 @@ class libasynql
 
 	public function init(Main $main): void
 	{
+		var_dump(1);
 		$this->db = DataBase::create(
 			$main,
 			$main->getConfig()->get("databases"),
@@ -61,6 +62,11 @@ class libasynql
 			fn () => $promise->reject()
 		);
 		return $promise->getPromise();
+	}
+
+	public function setStatus(int $id, string $status): void
+	{
+		$this->db->executeInsert("bans.setStatus", compact("id", "status"));
 	}
 
 	public function trigger(int $id): void

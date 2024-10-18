@@ -45,7 +45,15 @@
 
 	-- #{ getNotTriggeredBans
 		SELECT * FROM bans_data
-		WHERE `trigger` IS NULL AND status != "waiting" AND confirmed IS NULL;
+		WHERE `trigger` IS NULL AND confirmed IS NULL;
+	-- #}
+
+	-- #{ setStatus
+		-- # :id int
+		-- # :status string
+		UPDATE bans_data
+		SET status = :status
+		WHERE id = :id;
 	-- #}
 
 	-- #{ trigger

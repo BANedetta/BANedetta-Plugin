@@ -1,5 +1,4 @@
-# Administrators who cannot be banned
-admins:
+admins:  # Administrators who cannot be banned (all in lowercase)
   - tynaevbe
   - taskov1ch
 
@@ -38,3 +37,5 @@ databases:  # Database settings.
 # If anything, this is a reward for the players who actually banned the violator and presented evidence.
 rewards:
   - kick {%player} LOL :)
+
+time_limit: 6  # Time to provide evidence in hours (if there is no evidence, then ban)
