@@ -47,8 +47,8 @@ class CheckNotTriggeredBans extends Task
 
 	private function handleWaiting(array $row, BansManager $bans, int $timeLimit): void
 	{
-		$interval = (new DateTime())->diff(new DateTime($row["created"]));
-		$hours = $interval->h + ($interval->days * 24);
+		$interval = (new DateTime())->getTimestamp() - (new DateTime($row["created"]))->getTimestamp();
+		$hours = floor($interval / (60 * 60));
 
 		if ($hours >= $timeLimit) {
 			$this->abuse($row);
