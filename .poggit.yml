@@ -4,7 +4,7 @@ branches:
 projects:
   BANedetta:
     path: ""
+    icon: "icon.png"
     libs:
       - src: poggit/libasynql/libasynql
         version: ^4.1.6
-    icon: icon.png
